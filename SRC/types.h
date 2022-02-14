@@ -23,7 +23,11 @@
 
 // Comment out to exclude screen wrapping and to allow boids to move when dead
 // #define WRAP_TRUE
-#define ENFORCE_DEATH
+#define TRACK_DEATH
+
+#ifdef TRACK_DEATH
+#define ENFORCE_DEATH // WARNING TRACK_DEATH must be defined to enforce death
+#endif
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -59,7 +63,7 @@ struct iboid_s_s
 	vector_s *position;
 	vector_s *velocity;
 	float mass; // might be needed if we allow collisions
-	#ifdef ENFORCE_DEATH
+	#ifdef TRACK_DEATH
 		short life_status; // alive or dead depending on collision
 	#endif
 };
