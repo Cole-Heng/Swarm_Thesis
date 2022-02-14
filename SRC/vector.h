@@ -9,7 +9,7 @@ void print_vector(vector_s *vec);
 
 float length_vector(vector_s *a);
 float distance_between_vectors(vector_s *a, vector_s *b);
-float distance_to_perpendicular(vector_s *a, vector_s *p);
+short vectors_equal(vector_s *a, vector_s *b);
 
 void copy_vector(vector_s *from, vector_s *to);
 void normalize_vector(vector_s *to);
@@ -20,6 +20,5 @@ void sub_vector(vector_s *to, vector_s *with);
 void sub_vector_new(vector_s *to, vector_s *with_a, vector_s *with_b);
 void divide_vector_by_scalar(vector_s *vec, float div_by);
 void multiply_vector_by_scalar(vector_s *vec, float mult_by);
-void dot_product_new(vector_s *to, vector_s *with_a, vector_s *with_b);
 
-void wrap_dimensions(vector_s *vec, int dimension_size);
+short wrap_dimensions(vector_s *vec, int dimension_size);

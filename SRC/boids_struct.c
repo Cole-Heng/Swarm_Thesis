@@ -206,7 +206,9 @@ iboid_s *allocate_boid()
 	boid->position = allocate_vector();
 	boid->velocity = allocate_vector();
 	boid->mass = 0;
-
+	#ifdef ENFORCE_DEATH
+		boid->life_status = ALIVE;
+	#endif
 	return boid;
 }
 
@@ -228,8 +230,18 @@ void free_boid(iboid_s *boid)
 
 void update_boid(iboid_s *boid, int dimension_size)
 {
+	// #ifdef ENFORCE_DEATH
+	// 	if (boid->life_status == DEAD)
+	// 		return;
+	// #endif
 	add_vector(boid->position, boid->velocity);
-	wrap_dimensions(boid->position, dimension_size);
+	#ifdef ENFORCE_DEATH
+		if(wrap_dimensions(boid->position, dimension_size)) {
+			boid->life_status = DEAD;
+		}
+	#else
+		wrap_dimensions(boid->position, dimension_size);
+	#endif
 }
 
 void copy_boid(iboid_s *from, iboid_s *to)

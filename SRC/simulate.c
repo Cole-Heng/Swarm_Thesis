@@ -38,6 +38,10 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters)
 
 	for (i = 0; i < boids_p->num_boids; i++)
 	{
+		#ifdef ENFORCE_DEATH
+			if (boids_p->the_boids[i]->life_status == DEAD)
+				continue;
+		#endif
 		/* find neighbours */
 		find_neighbours(boids_p, boids_p->the_boids[i], parameters->neighbour_distance);
 
