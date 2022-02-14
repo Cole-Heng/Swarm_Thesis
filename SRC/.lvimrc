@@ -1,0 +1,17 @@
+" sets it so that :make makes in parent directory
+set makeprg=make\ -C\ ../
+
+" sets f4 key as make command
+nnoremap <F4> :make!<cr>
+
+" C specific settings
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set noexpandtab
+
+set colorcolumn=110
+highlight ColorColumn ctermbg=darkgray
+
+" Tags check up
+set tags=./tags;/
