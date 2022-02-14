@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	parameters.weight_rule1 = 75; //Center of mass
 	parameters.weight_rule2 = 4; //Avoid others
 	parameters.weight_rule3 = 10; //Common velocity
+	parameters.boid_size_radius = 5;
 
 	/* read arguments for the size of the boids to implement, how long to simulate,
 	 * and the file to ouput the simulation too:

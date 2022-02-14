@@ -66,6 +66,10 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters)
 
 		/* add the speed vector */
 		update_boid(boids_p->the_boids[i], parameters->dimension_size);
+		
+		#ifdef TRACK_DEATH
+		check_boid_collision(boids_p->the_boids[i], neighbours_p, parameters->boid_size_radius);
+		#endif
 	}
 
 
@@ -166,6 +170,9 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 		neighbours_p->num_boids = 0;
 		for (i = 0; i < boids_p->num_boids; i++)
 		{
+			if (current_boid->id == boids_p->the_boids[i]->id){
+				continue; // current_boid and the boid from the list are the same object, so skip
+			}
 			if (distance_between_vectors(boids_p->the_boids[i]->position, current_boid->position) <= radius)
 			{
 				copy_boid(boids_p->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
@@ -175,4 +182,16 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 	}
 }
 
+#ifdef TRACK_DEATH
+void check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_size_radius){
+	for (int i = 0; i < neighbours->num_boids; i++){
+		if (distance_between_vectors(current_boid->position, neighbours->the_boids[i]->position) <= boid_size_radius) {
+			current_boid->life_status = DEAD;
+			neighbours->the_boids[i]->life_status = DEAD;
+			return;
+		}
+	}
+
+}
+#endif
 

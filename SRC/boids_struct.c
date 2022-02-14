@@ -140,6 +140,7 @@ boids_s *allocate_boids(int num_boids)
 	for (i = 0; i < num_boids; i++)
 	{
 		boids->the_boids[i] = allocate_boid();
+		boids->the_boids[i]->id = i;
 	}
 
 	return boids;
@@ -232,9 +233,14 @@ void update_boid(iboid_s *boid, int dimension_size)
 {
 	add_vector(boid->position, boid->velocity);
 	#ifdef TRACK_DEATH
-		if(wrap_dimensions(boid->position, dimension_size)) {
-			boid->life_status = DEAD;
-		}
+		#ifndef WRAP_TRUE
+
+			if(wrap_dimensions(boid->position, dimension_size)) {
+				boid->life_status = DEAD;
+			}
+		#else
+			wrap_dimensions(boid->position, dimension_size);
+		#endif
 	#else
 		wrap_dimensions(boid->position, dimension_size);
 	#endif

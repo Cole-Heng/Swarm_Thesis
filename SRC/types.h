@@ -22,9 +22,9 @@
 //
 
 // Comment out to exclude screen wrapping and to allow boids to move when dead
-// #define WRAP_TRUE
-#define TRACK_DEATH
+//#define WRAP_TRUE
 
+#define TRACK_DEATH
 #ifdef TRACK_DEATH
 #define ENFORCE_DEATH // WARNING TRACK_DEATH must be defined to enforce death
 #endif
@@ -54,12 +54,14 @@ struct parameters_s_s
 	float weight_rule1;
 	float weight_rule2;
 	float weight_rule3;
+	int boid_size_radius;
 };
 
 /* A boid */
 typedef struct iboid_s_s iboid_s;
 struct iboid_s_s
 {
+	unsigned int id;
 	vector_s *position;
 	vector_s *velocity;
 	float mass; // might be needed if we allow collisions
