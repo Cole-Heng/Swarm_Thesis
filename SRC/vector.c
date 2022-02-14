@@ -146,6 +146,7 @@ void normalize_vector(vector_s *to)
 
 void wrap_dimensions(vector_s *vec, int dimension_size)
 {
+#ifdef WRAP_TRUE
 	if (vec->x > dimension_size)
 	{
 		vec->x -= dimension_size;
@@ -172,6 +173,35 @@ void wrap_dimensions(vector_s *vec, int dimension_size)
 	{
 		vec->z += dimension_size;
 	}
+#endif
+#else 
+	if (vec->x > dimension_size)
+	{
+		vec->x = dimension_size;
+	}
+	else if (vec->x < 0)
+	{
+		vec->x = 0;
+	}
+
+	if (vec->y > dimension_size)
+	{
+		vec->y = dimension_size;
+	}
+	else if (vec->y < 0)
+	{
+		vec->y = 0;
+	}
+#ifdef DIM_3D
+	if (vec->z > dimension_size)
+	{
+		vec->z = dimension_size;
+	}
+	else if (vec->z < 0)
+	{
+		vec->z = 0;
+	}
+#endif
 #endif
 }
 

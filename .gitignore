@@ -11,4 +11,4 @@ boids_sim
 tags
 TESTING/boids_sim
 TESTING/test_*.txt
-sim_out.txt
+sim_out.log

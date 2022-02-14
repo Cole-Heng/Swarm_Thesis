@@ -14,25 +14,6 @@
 #include "vector.h"
 
 
-// int main() {
-//     vector_s v1, v2, v3, v4;
-//     rand_positive_vector(&v1, 10);
-//     rand_positive_vector(&v2, 10);
-//     rand_positive_vector(&v3, 10);
-//     rand_positive_vector(&v4, 10);
-//     vector_s verts[4];
-// 	quad q1;
-//     q1.points[0] = v1;
-//     q1.points[1] = v2;
-//     q1.points[2] = v3;
-//     q1.points[3] = v4;
-// 	printf("1st vert: (%f, %f)\n", q1.points[0].x, q1.points[0].y);
-// 	printf("2nd vert: (%f, %f)\n", q1.points[1].x, q1.points[1].y);
-// 	printf("3rd vert: (%f, %f)\n", q1.points[2].x, q1.points[2].y);
-// 	printf("4th vert: (%f, %f)\n", q1.points[3].x, q1.points[3].y);
-//     return 0;
-// }
-
 int main(int argc, char *argv[])
 {
 	int num_boids;

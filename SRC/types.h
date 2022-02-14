@@ -20,6 +20,10 @@
 #define DIM_2D
 //#define DIM_3D
 //
+
+// Comment out to exclude screen wrapping
+// #define WRAP_TRUE
+
 #ifndef TYPES_H
 #define TYPES_H
 
