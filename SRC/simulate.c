@@ -43,10 +43,10 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 				continue;
 		#endif
 
-		/* Point ghost boid towards waypoint */
+		/* Point ghost boid towards waypoint and position on boid*/
 		if (boids_p->the_boids[i]->is_leader) 
 		{
-			update_ghost_velocity(boids_p->the_boids[i]->ghost_boid, objs_p);
+			update_ghost(boids_p->the_boids[i], objs_p);
 		}
 
 		/* find neighbours */
@@ -243,16 +243,20 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 }
 #endif
 
-void update_ghost_velocity(ghost_boid_s *ghost, objs_s* objects)
+void update_ghost(iboid_s *boid, objs_s* objects)
 {
+	/* Update position to be on boid */
+	copy_vector(boid->position, boid->ghost_boid->position);
+
+	/* Update Velocity to be a unit vector pointing to waypoint */
 	for (int i = 0; i < objects->num_objs; i++)
 	{
 		if (objects->the_objs[i]->is_waypoint)
 		{
 			vector_s *temp_vec = allocate_vector();
-			sub_vector_new(temp_vec, ghost->position, objects->the_objs[i]->position);
+			sub_vector_new(temp_vec, objects->the_objs[i]->position, boid->ghost_boid->position);
 			normalize_vector(temp_vec);
-			copy_vector(temp_vec, ghost->velocity);
+			copy_vector(temp_vec, boid->ghost_boid->velocity);
 			break;
 		}
 	}
