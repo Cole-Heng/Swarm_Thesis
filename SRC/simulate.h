@@ -4,6 +4,7 @@ void free_simulate();
 
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p);
 void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius);
+void update_ghost_velocity(ghost_boid_s *ghost, objs_s* objects);
 
 #ifdef TRACK_DEATH
 void check_collision(iboid_s *boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects);

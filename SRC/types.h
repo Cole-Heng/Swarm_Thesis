@@ -55,6 +55,17 @@ struct parameters_s_s
 	float weight_rule2;
 	float weight_rule3;
 	int boid_size_radius;
+	int object_radius;
+};
+
+
+/* A ghost boid */
+typedef struct ghost_boid_s_s ghost_boid_s;
+struct ghost_boid_s_s
+{
+	unsigned int id;
+	vector_s *position;
+	vector_s *velocity;
 };
 
 /* A boid */
@@ -68,6 +79,8 @@ struct iboid_s_s
 	#ifdef TRACK_DEATH
 		short life_status; // alive or dead depending on collision
 	#endif
+	short is_leader;
+	ghost_boid_s *ghost_boid;
 };
 
 
@@ -98,7 +111,8 @@ struct obj_s_s
 {
 	vector_s *position;
 	vector_s *velocity;
-	int r;
+	int radius;
+	short is_waypoint;
 };
 
 

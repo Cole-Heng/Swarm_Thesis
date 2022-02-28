@@ -6,7 +6,7 @@ void set_object_position(obj_s* obj, float x, float y, float z);
 obj_s *allocate_object();
 void free_object(obj_s *obj);
 
-objs_s *init_objects_with_file(int *num_objs, int *num_frames, parameters_s* parameters, FILE *fp);
+objs_s *init_objects_with_file(int *num_objs, FILE *fp);
 objs_s *init_random_objects(int num_objs, int dimension_size, int radius);
 
 #ifdef DIM_3D
@@ -16,6 +16,8 @@ void set_object_position_xyz(obj_s *obj, float x, float y, float z);
 void set_object_velocity_xy(obj_s *obj, float x, float y);
 void set_object_position_xy(obj_s *obj, float x, float y);
 #endif
+void set_object_radius(obj_s *obj, int r);
+void set_object_waypoint(obj_s *obj, short is_waypoint);
 
 void copy_object(obj_s *from, obj_s *to);
 

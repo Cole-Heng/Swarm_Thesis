@@ -42,6 +42,13 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 			if (boids_p->the_boids[i]->life_status == DEAD)
 				continue;
 		#endif
+
+		/* Point ghost boid towards waypoint */
+		if (boids_p->the_boids[i]->is_leader) 
+		{
+			update_ghost_velocity(boids_p->the_boids[i]->ghost_boid, objs_p);
+		}
+
 		/* find neighbours */
 		find_neighbours(boids_p, boids_p->the_boids[i], parameters->neighbour_distance);
 
@@ -142,8 +149,13 @@ void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 	sum_all_boids_velocity(neighbours, vec);
 	/* remove yourself */
 	sub_vector(vec, boid->velocity);
-	/* remove yourself from the weighting */
-	divide_vector_by_scalar(vec, neighbours->num_boids-1);
+	/* add ghost boid if leader */
+	if (boid->is_leader)
+	{
+		add_vector(vec, boid->ghost_boid->velocity);
+	}
+	/* remove yourself from the weighting, add one if ghost boid is present*/
+	divide_vector_by_scalar(vec, (neighbours->num_boids-1 + boid->is_leader));
 
 	/* make it a unit vector */
 	normalize_vector(vec);
@@ -223,7 +235,7 @@ short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dime
 
 short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s* objects) {
 	for (int i = 0; i < objects->num_objs; i++){
-		if (distance_between_vectors(current_boid->position, objects->the_objs[i]->position) <= (boid_size_radius + objects->the_objs[i]->r)) {
+		if (distance_between_vectors(current_boid->position, objects->the_objs[i]->position) <= (boid_size_radius + objects->the_objs[i]->radius)) {
 			return TRUE;
 		}
 	}
@@ -231,3 +243,17 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 }
 #endif
 
+void update_ghost_velocity(ghost_boid_s *ghost, objs_s* objects)
+{
+	for (int i = 0; i < objects->num_objs; i++)
+	{
+		if (objects->the_objs[i]->is_waypoint)
+		{
+			vector_s *temp_vec = allocate_vector();
+			sub_vector_new(temp_vec, ghost->position, objects->the_objs[i]->position);
+			normalize_vector(temp_vec);
+			copy_vector(temp_vec, ghost->velocity);
+			break;
+		}
+	}
+}

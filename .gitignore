@@ -14,3 +14,4 @@ TESTING/test_*.txt
 *.log
 *.code-workspace
 /src/*.code-workspace
+/.vscode

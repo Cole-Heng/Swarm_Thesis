@@ -232,7 +232,8 @@ class Boids
 			boids[i].update_position(float(frameFiletxt[read_index]), float(frameFiletxt[read_index+1]));
 			boids[i].update_velocity(float(frameFiletxt[read_index+2]), float(frameFiletxt[read_index+3]));
 			boids[i].update_life_status(int(frameFiletxt[read_index+4]));
-      read_index += 5;
+      boids[i].update_leader_status(int(frameFiletxt[read_index+5]));
+      read_index += 6;
 		}
 		frame_index ++;
 	}
@@ -256,7 +257,8 @@ class Boids
 			boids[i].update_position(float(frameFiletxt[read_index]), float(frameFiletxt[read_index+1]));
 			boids[i].update_velocity(float(frameFiletxt[read_index+2]), float(frameFiletxt[read_index+3]));
       boids[i].update_life_status(int(frameFiletxt[read_index+4]));
-			read_index += 5;
+      boids[i].update_leader_status(int(frameFiletxt[read_index+5]));
+			read_index += 6;
 		}
 
 		frame_index --;
@@ -269,6 +271,7 @@ class Boid
   PVector velocity;
   color boid_color;
   int life_status;
+  int is_leader;
 
   Boid()
   {
@@ -289,7 +292,18 @@ class Boid
   void update_life_status(int s) 
   {
     life_status = s; 
+    if (s == 0){
+      boid_color = color(255, 255, 255); 
+    } else {
+      boid_color = color(0, 200, 30);
+    }
   }
+  
+  void update_leader_status(int s) 
+  {
+    is_leader = s; 
+  }
+  
   void update_draw()
   {
         float theta = velocity.heading2D() + radians(90);
@@ -298,7 +312,7 @@ class Boid
     {
       fill(175);
     } else {
-      fill(255, 45, 25);
+      fill(boid_color);
     }
     stroke(0);
     pushMatrix();
@@ -496,18 +510,24 @@ class Object
   PVector velocity;
   int radius;
   color obj_color;
+  int is_waypoint;
   
-  Object(float x, float y, int r)
+  Object(float x, float y, int r, int is_wp)
   {
     velocity = new PVector(0,0);
     position = new PVector(x,y);
-    this.obj_color = color(255, 255, 255);
+    if (is_wp == 0) {
+      this.obj_color = color(55, 255, 255);
+    } else {
+      this.obj_color = color(50, 255, 50);
+    }
     radius = r;
+    this.is_waypoint = is_wp;
   }
   
   void update_draw()
   {
-    fill(55, 255, 225);
+    fill(obj_color);
     stroke(0);
     circle(position.x, position.y, 2 * radius);
   }
@@ -528,8 +548,8 @@ class Objects
 
     for (int i=0; i < this.num_objs; i++)
     {
-      objs[i] = new Object(float(frameFiletxt[read_index]), float(frameFiletxt[read_index+1]), int(frameFiletxt[read_index+2]));
-      read_index += 3;
+      objs[i] = new Object(float(frameFiletxt[read_index]), float(frameFiletxt[read_index+1]), int(frameFiletxt[read_index+2]), int(frameFiletxt[read_index+3]));
+      read_index += 4;
     }
   }
   

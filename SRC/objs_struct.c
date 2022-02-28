@@ -24,17 +24,20 @@ objs_s *init_random_objects(int num_objs, int dimension_size, int radius)
 		copy_vector(&speed_vector, objs->the_objs[i]->velocity);
 
         /* Set object radius */
-        objs->the_objs[i]->r = radius;
+        set_object_radius(objs->the_objs[i], radius);
+		set_object_waypoint(objs->the_objs[i], FALSE);
 	}
 
 	return objs;
 }
 
-objs_s *init_objects_with_file(int *num_objs, int *num_frames, parameters_s* parameters, FILE *fp)
+objs_s *init_objects_with_file(int *num_objs, FILE *fp)
 {
 	int i, j;
-	float read[6];
+	float read[4];
 	char string_numbers[8];
+
+	fgets(string_numbers, 8, fp); // Skip first read, it always gives "0"
 
 	fgets(string_numbers, 8, fp);
 	if (string_numbers != NULL)
@@ -48,80 +51,21 @@ objs_s *init_objects_with_file(int *num_objs, int *num_frames, parameters_s* par
 	}
 
 
-	fgets(string_numbers, 8, fp);
-	if (string_numbers != NULL)
-	{
-		*num_frames = atoi(string_numbers);
-	}
-	else
-	{
-		printf("Failed to read init file - num_frames\n");
-		exit(-1);
-	}
-
-	fgets(string_numbers, 8, fp);
-	if (string_numbers != NULL)
-	{
-		parameters->dimension_size = atoi(string_numbers);
-	}
-	else
-	{
-		printf("Failed to read init file - num_frames\n");
-		exit(-1);
-	}
-
-	fgets(string_numbers, 8, fp); // skip dimension
-
-	fgets(string_numbers, 8, fp);
-	if (string_numbers != NULL)
-	{
-		parameters->neighbour_distance = atoi(string_numbers);
-	}
-	else
-	{
-		printf("Failed to read init file - num_frames\n");
-		exit(-1);
-	}
-
-	fgets(string_numbers, 8, fp);
-	if (string_numbers != NULL)
-	{
-		parameters->neighbour_desired_seperation = atoi(string_numbers);
-	}
-	else
-	{
-		printf("Failed to read init file - num_frames\n");
-		exit(-1);
-	}
-
-	fscanf(fp, "%f", &parameters->weight_rule1);
-	fscanf(fp, "%f", &parameters->weight_rule2);
-	fscanf(fp, "%f", &parameters->weight_rule3);
-
 	/* allocate the objs */
 	objs_s *objs = allocate_objects(*num_objs);
 
 	for (i = 0; i < *num_objs; i++)
 	{
-#ifdef DIM_3D
-		/* assume next 6 values are for position then velocity */
-		for (j = 0; j < 6; j++)
-		{
-			fscanf(fp, "%f", &read[j]);
-		}
-
-		set_object_position_xyz(objs->the_objs[i], read[0], read[1], read[2]);
-		set_object_velocity_xyz(objs->the_objs[i], read[3], read[4], read[5]);
-#else
-		/* assume next 4 values are for position then velocity */
+		/* assume next 4 values are for position x,y, radius, is_waypoint*/
 		for (j = 0; j < 4; j++)
 		{
 			fscanf(fp, "%f", &read[j]);
 		}
 
 		set_object_position_xy(objs->the_objs[i], read[0], read[1]);
-		set_object_velocity_xy(objs->the_objs[i], read[2], read[3]);
-#endif
+		set_object_velocity_xy(objs->the_objs[i], 0, 0);
+		set_object_radius(objs->the_objs[i], read[2]);
+		set_object_waypoint(objs->the_objs[i], read[3]);
 	}
 
 	return objs;
@@ -196,6 +140,16 @@ void set_object_position_xy(obj_s *obj, float x, float y)
 	obj->position->y = y;
 }
 #endif 
+void set_object_radius(obj_s *obj, int radius)
+{
+	obj->radius = radius;
+}
+
+void set_object_waypoint(obj_s *obj, short is_waypoint)
+{
+	obj->is_waypoint = is_waypoint;
+}
+
 
 /*
  * Allocate the obj

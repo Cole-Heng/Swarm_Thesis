@@ -31,7 +31,7 @@ boids_s *init_random_boids(int num_boids, int dimension_size)
 boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* parameters, FILE *fp)
 {
 	int i, j;
-	float read[6];
+	float read[7];
 	char string_numbers[8];
 
 	fgets(string_numbers, 8, fp);
@@ -64,7 +64,7 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 	}
 	else
 	{
-		printf("Failed to read init file - num_frames\n");
+		printf("Failed to read init file - dimension_size\n");
 		exit(-1);
 	}
 
@@ -77,7 +77,7 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 	}
 	else
 	{
-		printf("Failed to read init file - num_frames\n");
+		printf("Failed to read init file - neighbor_distance\n");
 		exit(-1);
 	}
 
@@ -88,7 +88,7 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 	}
 	else
 	{
-		printf("Failed to read init file - num_frames\n");
+		printf("Failed to read init file - desired_seperation\n");
 		exit(-1);
 	}
 
@@ -98,27 +98,31 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 
 	/* allocate the boids */
 	boids_s *boids = allocate_boids(*num_boids);
-
 	for (i = 0; i < *num_boids; i++)
 	{
 #ifdef DIM_3D
-		/* assume next 6 values are for position then velocity */
-		for (j = 0; j < 6; j++)
+		/* assume next 7 values are for position then velocity then leader status*/
+		for (j = 0; j < 7; j++)
 		{
 			fscanf(fp, "%f", &read[j]);
 		}
 
 		set_boid_position_xyz(boids->the_boids[i], read[0], read[1], read[2]);
 		set_boid_velocity_xyz(boids->the_boids[i], read[3], read[4], read[5]);
+		set_boid_leader(boids->the_boids[i], read[6]);
 #else
-		/* assume next 4 values are for position then velocity */
-		for (j = 0; j < 4; j++)
+		/* assume next 5 values are for position then velocity then leader status */
+		for (j = 0; j < 5; j++)
 		{
 			fscanf(fp, "%f", &read[j]);
 		}
 
 		set_boid_position_xy(boids->the_boids[i], read[0], read[1]);
 		set_boid_velocity_xy(boids->the_boids[i], read[2], read[3]);
+		if (read[4]) { // boid is a leader
+			set_boid_leader(boids->the_boids[i], read[4]);
+			assign_ghost_boid(boids->the_boids[i]);
+		}
 #endif
 	}
 
@@ -196,6 +200,29 @@ void set_boid_position_xy(iboid_s *boid, float x, float y)
 }
 #endif 
 
+void set_boid_leader(iboid_s *boid, short is_leader) 
+{
+	boid->is_leader = is_leader;
+}
+
+void assign_ghost_boid(iboid_s *boid) 
+{
+	boid->ghost_boid = allocate_ghost();
+	boid->ghost_boid->id = boid->id;
+	copy_vector(boid->position, boid->ghost_boid->position);
+	init_vector_to_0(boid->ghost_boid->velocity);
+}
+
+ghost_boid_s *allocate_ghost()
+{
+	ghost_boid_s *ghost;
+
+	ghost = (ghost_boid_s*)malloc(sizeof(ghost_boid_s));
+	ghost->position = allocate_vector();
+	ghost->velocity = allocate_vector();
+	return ghost;
+}
+
 /*
  * Allocate the boid
  */
@@ -206,6 +233,7 @@ iboid_s *allocate_boid()
 	boid = (iboid_s*)malloc(sizeof(iboid_s));
 	boid->position = allocate_vector();
 	boid->velocity = allocate_vector();
+	boid->is_leader = FALSE;
 	boid->mass = 0;
 	#ifdef TRACK_DEATH
 		boid->life_status = ALIVE;

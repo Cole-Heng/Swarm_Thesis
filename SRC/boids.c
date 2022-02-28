@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 {
 	int num_boids;
 	int num_frames;
+	int num_objects;
 	char *out_filename;
 	boids_s *boids_p;
 	objs_s *objs_p;
@@ -39,8 +40,7 @@ int main(int argc, char *argv[])
 	parameters.weight_rule2 = 4; //Avoid others
 	parameters.weight_rule3 = 10; //Common velocity
 	parameters.boid_size_radius = 5;
-	int num_objs = 1;
-	int obj_radius = 5;
+	parameters.object_radius = 5;
 
 	/* read arguments for the size of the boids to implement, how long to simulate,
 	 * and the file to ouput the simulation too:
@@ -57,13 +57,14 @@ int main(int argc, char *argv[])
 	{
 		if (strcmp(argv[1], "RAND_INIT") == 0)
 		{
-			if (argc == 6)
+			if (argc == 7)
 			{
-				printf("You chose | %s | %s | %s |%s |%s \n", argv[1], argv[2], argv[3], argv[4], argv[5]);
+				printf("You chose | %s | %s | %s | %s | %s | %s\n", argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
 				num_boids = atoi(argv[2]);
 				num_frames = atoi(argv[3]);
 				parameters.dimension_size = atoi(argv[4]);
-				out_filename = argv[5];
+				num_objects = atoi(argv[5]);
+				out_filename = argv[6];
 			}
 			else
 			{
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
 
 			/* initialize the data structures for the boids */
 			boids_p = init_random_boids(num_boids, parameters.dimension_size);
-			objs_p = init_random_objects(num_objs, parameters.dimension_size, obj_radius);
+			objs_p = init_random_objects(num_objects, parameters.dimension_size, parameters.object_radius);
 		}
 		else if (strcmp(argv[1], "FILE_INIT") == 0)
 		{
@@ -94,6 +95,7 @@ int main(int argc, char *argv[])
 				}
 
 				boids_p = init_boids_with_file(&num_boids, &num_frames, &parameters, init_file);
+				objs_p = init_objects_with_file(&num_objects, init_file);
 
 				fclose(init_file);
 
@@ -114,7 +116,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* initialize the output simulation file */
-	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2, num_objs);
+	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2, num_objects);
 
 	/* Write objects to the file header */
 	write_objects_to_file(file_p, objs_p);
