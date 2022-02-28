@@ -292,16 +292,16 @@ class Boid
   void update_life_status(int s) 
   {
     life_status = s; 
-    if (s == 0){
-      boid_color = color(255, 255, 255); 
-    } else {
-      boid_color = color(0, 200, 30);
-    }
   }
   
   void update_leader_status(int s) 
   {
     is_leader = s; 
+    if (s == 0){
+      boid_color = color(255, 255, 255); 
+    } else {
+      boid_color = color(0, 200, 30);
+    }
   }
   
   void update_draw()
@@ -310,9 +310,9 @@ class Boid
     float r = 3.0;
     if (life_status == 1) //alive
     {
-      fill(175);
-    } else {
       fill(boid_color);
+    } else {
+      fill(255, 45, 25);
     }
     stroke(0);
     pushMatrix();
@@ -325,7 +325,7 @@ class Boid
     endShape();
     popMatrix();
     noFill();
-    stroke(255, 255, 0);
+    stroke(255, 255, is_leader * 255);
     circle(position.x, position.y, 10);
   }
 }
