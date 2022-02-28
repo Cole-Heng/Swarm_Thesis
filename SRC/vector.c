@@ -150,79 +150,65 @@ void normalize_vector(vector_s *to)
 	}
 }
 
-short wrap_dimensions(vector_s *vec, int dimension_size)
+void wrap_dimensions(vector_s *vec, int dimension_size)
 {
-	short did_wrap = FALSE;
 #ifdef WRAP_TRUE
 	if (vec->x > dimension_size)
 	{
 		vec->x -= dimension_size;
-		did_wrap = TRUE;
 	}
 	else if (vec->x < 0)
 	{
 		vec->x += dimension_size;
-		did_wrap = TRUE;
 	}
 
 	if (vec->y > dimension_size)
 	{
 		vec->y -= dimension_size;
-		did_wrap = TRUE;
 	}
 	else if (vec->y < 0)
 	{
 		vec->y += dimension_size;
-		did_wrap = TRUE;
 	}
 #ifdef DIM_3D
 	if (vec->z > dimension_size)
 	{
 		vec->z -= dimension_size;
-		did_wrap = TRUE;
 	}
 	else if (vec->z < 0)
 	{
 		vec->z += dimension_size;
-		did_wrap = TRUE;
 	}
 #endif
 #else 
 	if (vec->x > dimension_size)
 	{
 		vec->x = dimension_size;
-		did_wrap = TRUE;
 	}
 	else if (vec->x < 0)
 	{
 		vec->x = 0;
-		did_wrap = TRUE;
 	}
 
 	if (vec->y > dimension_size)
 	{
 		vec->y = dimension_size;
-		did_wrap = TRUE;
 	}
 	else if (vec->y < 0)
 	{
-		vec->y = 0;
-		did_wrap = TRUE;
+		vec->y = 0;	
 	}
 #ifdef DIM_3D
 	if (vec->z > dimension_size)
 	{
 		vec->z = dimension_size;
-		did_wrap = TRUE;
 	}
 	else if (vec->z < 0)
 	{
 		vec->z = 0;
-		did_wrap = TRUE;
 	}
 #endif
 #endif
-	return did_wrap;
 }
 
 void multiply_vector_by_scalar(vector_s *vec, float mult_by)

@@ -232,18 +232,7 @@ void free_boid(iboid_s *boid)
 void update_boid(iboid_s *boid, int dimension_size)
 {
 	add_vector(boid->position, boid->velocity);
-	#ifdef TRACK_DEATH
-		#ifndef WRAP_TRUE
-
-			if(wrap_dimensions(boid->position, dimension_size)) {
-				boid->life_status = DEAD;
-			}
-		#else
-			wrap_dimensions(boid->position, dimension_size);
-		#endif
-	#else
-		wrap_dimensions(boid->position, dimension_size);
-	#endif
+	wrap_dimensions(boid->position, dimension_size);
 }
 
 void copy_boid(iboid_s *from, iboid_s *to)

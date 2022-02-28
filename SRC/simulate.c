@@ -30,7 +30,7 @@ void free_simulate()
  * Rule 2: Boids try to keep a small distance away from other objects (including other boids).
  * Rule 3: Boids try to match velocity with near boids.
  */
-void simulate_a_frame(boids_s* boids_p, parameters_s* parameters)
+void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p)
 {
 	int i;
 
@@ -68,7 +68,7 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters)
 		update_boid(boids_p->the_boids[i], parameters->dimension_size);
 		
 		#ifdef TRACK_DEATH
-		check_boid_collision(boids_p->the_boids[i], neighbours_p, parameters->boid_size_radius);
+		check_collision(boids_p->the_boids[i], neighbours_p, parameters, objs_p);
 		#endif
 	}
 
@@ -183,15 +183,51 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 }
 
 #ifdef TRACK_DEATH
-void check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_size_radius){
+void check_collision(iboid_s *current_boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects){
+	if (check_boid_collision(current_boid, neighbours, parameters->boid_size_radius)) {
+		current_boid->life_status = DEAD;
+	} 
+	else if (check_wall_collision(current_boid, parameters->boid_size_radius, parameters->dimension_size)) {
+		current_boid->life_status = DEAD;
+	}
+	else if (check_object_collision(current_boid, parameters->boid_size_radius, objects)){
+		current_boid->life_status = DEAD;
+	}
+}
+
+short check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_size_radius){
 	for (int i = 0; i < neighbours->num_boids; i++){
-		if (distance_between_vectors(current_boid->position, neighbours->the_boids[i]->position) <= boid_size_radius) {
-			current_boid->life_status = DEAD;
-			neighbours->the_boids[i]->life_status = DEAD;
-			return;
+		if (distance_between_vectors(current_boid->position, neighbours->the_boids[i]->position) <= 2 * boid_size_radius) {
+			// neighbours->the_boids[i]->life_status = DEAD; //Need this?
+			return TRUE;
 		}
 	}
+	return FALSE;
+}
 
+short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dimension_size) {
+	if ((current_boid->position->x - boid_size_radius) <= 0) {
+		return TRUE;
+	} 
+	else if ((current_boid->position->x + boid_size_radius) >= dimension_size) {
+		return TRUE;
+	} 
+	else if ((current_boid->position->y - boid_size_radius) <= 0) {
+		return TRUE;
+	} 
+	else if ((current_boid->position->y + boid_size_radius) >= dimension_size) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
+short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s* objects) {
+	for (int i = 0; i < objects->num_objs; i++){
+		if (distance_between_vectors(current_boid->position, objects->the_objs[i]->position) <= (boid_size_radius + objects->the_objs[i]->r)) {
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 #endif
 

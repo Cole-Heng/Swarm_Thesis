@@ -91,3 +91,21 @@ struct quad_s
 	vector_s points[4];
 };
 #endif // TYPES_H
+
+/* An object */
+typedef struct obj_s_s obj_s;
+struct obj_s_s
+{
+	vector_s *position;
+	vector_s *velocity;
+	int r;
+};
+
+
+/* The set of objects */
+typedef struct objs_s_s objs_s;
+struct objs_s_s
+{
+	obj_s **the_objs;
+	int num_objs;
+};

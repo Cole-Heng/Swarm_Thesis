@@ -12,6 +12,7 @@
 #include "output_simulation_file.h"
 #include "simulate.h"
 #include "vector.h"
+#include "objs_struct.h"
 
 
 int main(int argc, char *argv[])
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
 	int num_frames;
 	char *out_filename;
 	boids_s *boids_p;
+	objs_s *objs_p;
 	parameters_s parameters;
 	FILE *file_p;
 	int i;
@@ -37,6 +39,8 @@ int main(int argc, char *argv[])
 	parameters.weight_rule2 = 4; //Avoid others
 	parameters.weight_rule3 = 10; //Common velocity
 	parameters.boid_size_radius = 5;
+	int num_objs = 1;
+	int obj_radius = 5;
 
 	/* read arguments for the size of the boids to implement, how long to simulate,
 	 * and the file to ouput the simulation too:
@@ -69,6 +73,7 @@ int main(int argc, char *argv[])
 
 			/* initialize the data structures for the boids */
 			boids_p = init_random_boids(num_boids, parameters.dimension_size);
+			objs_p = init_random_objects(num_objs, parameters.dimension_size, obj_radius);
 		}
 		else if (strcmp(argv[1], "FILE_INIT") == 0)
 		{
@@ -109,7 +114,10 @@ int main(int argc, char *argv[])
 	}
 
 	/* initialize the output simulation file */
-	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2);
+	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2, num_objs);
+
+	/* Write objects to the file header */
+	write_objects_to_file(file_p, objs_p);
 
 	/* write initial state to the file */
 	write_frame_to_output_file(file_p, boids_p);
@@ -126,7 +134,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < num_frames; i++)
 	{
 		/* simulate the tick for conways */
-		simulate_a_frame(boids_p, &parameters);
+		simulate_a_frame(boids_p, &parameters, objs_p);
 
 		startw = clock();
 		/* write to the file */

@@ -12,3 +12,5 @@ tags
 TESTING/boids_sim
 TESTING/test_*.txt
 *.log
+*.code-workspace
+/src/*.code-workspace

@@ -21,4 +21,4 @@ void sub_vector_new(vector_s *to, vector_s *with_a, vector_s *with_b);
 void divide_vector_by_scalar(vector_s *vec, float div_by);
 void multiply_vector_by_scalar(vector_s *vec, float mult_by);
 
-short wrap_dimensions(vector_s *vec, int dimension_size);
+void wrap_dimensions(vector_s *vec, int dimension_size);
