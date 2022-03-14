@@ -1,5 +1,5 @@
 
-void init_simulate(boids_s* boids_p);
+void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs);
 void free_simulate();
 
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p);
@@ -12,3 +12,6 @@ short check_boid_collision(iboid_s *boid, boids_s *neighbours, int boid_size_rad
 short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dimension_size);
 short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s* objects);
 #endif
+
+boids_s *create_cardinal_marks(parameters_s* parameters);
+boids_s *create_isolated_danger_marks(objs_s* objs);

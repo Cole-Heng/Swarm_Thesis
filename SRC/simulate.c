@@ -7,23 +7,156 @@
 #include "boids_struct.h"
 
 boids_s *neighbours_p;
+boids_s *CMs; // Cardinal Marks (wall boids)
+boids_s *IDMs; // Isolated Danger Marks (Object boids)
 
 // PROTOTYPES
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight);
 void rule2(vector_s *vec, iboid_s *boid, boids_s *neighbours, float desired_seperation, float weight);
 void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight);
 
-void init_simulate(boids_s* boids_p)
+void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs)
 {
 	/* allocate data structure for neighbours */
-	neighbours_p = allocate_boids(boids_p->num_boids);
+	CMs = create_cardinal_marks(parameters);
+	IDMs = create_isolated_danger_marks(objs);
+	neighbours_p = allocate_boids(boids_p->num_boids + CMs->num_boids);
 }
 void free_simulate()
 {
 	/* allocate data structure for neighbours */
 	free_boids(neighbours_p); 
+	free_boids(CMs); 
+	free_boids(IDMs); 
 }
 
+boids_s *create_cardinal_marks(parameters_s* parameters) {
+	FILE *out;
+
+	out = (FILE*)fopen("CM_coords.log", "w");
+
+	int num_boids_per_wall = parameters->dimension_size / (2 * parameters->boid_size_radius);
+	boids_s *CMs = allocate_boids(4 * num_boids_per_wall);
+
+	
+	int i = 0;
+	int j;
+	vector_s *temp_vec = allocate_vector();
+	temp_vec->x = 1;
+	temp_vec->y = 0;
+	for (j = 0; j < num_boids_per_wall; j++) { //TL to BL
+		CMs->the_boids[j]->position->x = 0;
+		CMs->the_boids[j]->position->y = 2 * j * parameters->boid_size_radius;
+		copy_vector(temp_vec, CMs->the_boids[j]->velocity);
+	}
+	i = j;
+
+	temp_vec->x = 0;
+	temp_vec->y = -1;
+	for (j = 0; j < num_boids_per_wall; j++) { //BL tp BR
+		CMs->the_boids[j + i]->position->x = 2 * j * parameters->boid_size_radius;
+		CMs->the_boids[j + i]->position->y = parameters->dimension_size;
+		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
+	}
+	i = 2 * j;
+
+	temp_vec->x = -1;
+	temp_vec->y = 0;
+	for (j = 0; j < num_boids_per_wall; j++) { //BR to TR
+		CMs->the_boids[j + i]->position->x = parameters->dimension_size;
+		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
+		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
+	}
+
+	i = 3 * j;
+
+	temp_vec->x = 0;
+	temp_vec->y = 1;
+	for (j = 0; j < num_boids_per_wall; j++) { //TR to TL
+		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->y = 0;
+		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
+	}
+
+	fprintf(out, "#Markers/wall: %d\n", num_boids_per_wall);
+	fprintf(out, "#Markers: %d\n", CMs->num_boids);
+	for (int i = 0; i < CMs->num_boids; i++) {
+		fprintf(out, "marker[%d] pos[%f, %f] vel[%f, %f]\n", (i), CMs->the_boids[i]->position->x, CMs->the_boids[i]->position->y, CMs->the_boids[i]->velocity->x, CMs->the_boids[i]->velocity->y);
+	}
+	fflush(out);
+	/* close output file */
+	fclose(out);
+	return CMs;
+}
+
+boids_s *create_isolated_danger_marks(objs_s* objs) {
+	FILE *out;
+
+	out = (FILE*)fopen("IDM_coords.log", "w");
+	
+	int waypoint_count = 0;
+	for (int i = 0; i < objs->num_objs; i++) {
+		if (objs->the_objs[i]->is_waypoint == TRUE) {
+			waypoint_count++;
+		}
+	}
+	boids_s *IDMs = allocate_boids(4 * (objs->num_objs - waypoint_count));
+
+	fprintf(out, "#Markers: %d\n", IDMs->num_boids);
+
+	vector_s *temp_vec = allocate_vector();
+	temp_vec->x = 0;
+	int j = 0;
+	for (int i = 0; i < objs->num_objs; i++) { //Set North IDM
+		if (objs->the_objs[i]->is_waypoint == TRUE){
+			continue; // Don't add marks to waypoints
+		}
+		temp_vec->y = -1 * objs->the_objs[i]->radius;
+		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
+		IDMs->the_boids[j]->velocity->y = -1;
+		fprintf(out, "marker[%d] N on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
+		j++;
+	}
+
+	for (int i = 0; i < objs->num_objs; i++) { //Set South IDM
+		if (objs->the_objs[i]->is_waypoint == TRUE){
+			continue; // Don't add marks to waypoints
+		}
+		temp_vec->y = objs->the_objs[i]->radius;
+		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
+		IDMs->the_boids[j]->velocity->y = 1;
+		fprintf(out, "marker[%d] S on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
+		j++;
+	}
+
+	temp_vec->y = 0;
+	for (int i = 0; i < objs->num_objs; i++) { //Set East IDM
+		if (objs->the_objs[i]->is_waypoint == TRUE){
+			continue; // Don't add marks to waypoints
+		}
+		temp_vec->x = objs->the_objs[i]->radius;
+		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
+		IDMs->the_boids[j]->velocity->x = 1;
+		fprintf(out, "marker[%d] E on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
+		j++;
+	}
+
+	for (int i = 0; i < objs->num_objs; i++) { //Set West IDM
+		if (objs->the_objs[i]->is_waypoint == TRUE){
+			continue; // Don't add marks to waypoints
+		}
+		temp_vec->x = -1 * objs->the_objs[i]->radius;
+		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
+		IDMs->the_boids[j]->velocity->x = -1;
+		fprintf(out, "marker[%d] W on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
+		j++;
+	}
+
+	fflush(out);
+	/* close output file */
+	fclose(out);
+	return IDMs;
+}
 
 /*
  * Rule 1: Boids try to fly towards the centre of mass of neighbouring boids.
@@ -180,6 +313,7 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 	else
 	{
 		neighbours_p->num_boids = 0;
+		// Compare to boids
 		for (i = 0; i < boids_p->num_boids; i++)
 		{
 			if (current_boid->id == boids_p->the_boids[i]->id){
@@ -188,6 +322,26 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 			if (distance_between_vectors(boids_p->the_boids[i]->position, current_boid->position) <= radius)
 			{
 				copy_boid(boids_p->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
+				neighbours_p->num_boids++;
+			}
+		}
+
+		// Compare to Cardinal Marks (CMs)
+		for (i = 0; i < CMs->num_boids; i++)
+		{
+			if (distance_between_vectors(CMs->the_boids[i]->position, current_boid->position) <= radius)
+			{
+				copy_boid(CMs->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
+				neighbours_p->num_boids++;
+			}
+		}
+
+		// Compare to Isolated Danger Marks (IDMs)
+		for (i = 0; i < IDMs->num_boids; i++)
+		{
+			if (distance_between_vectors(IDMs->the_boids[i]->position, current_boid->position) <= radius)
+			{
+				copy_boid(IDMs->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
 				neighbours_p->num_boids++;
 			}
 		}

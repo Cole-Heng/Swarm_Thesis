@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	double timew = 0;
 
 	/* initialize data structures for simulation */
-	init_simulate(boids_p);
+	init_simulate(boids_p, &parameters, objs_p);
 
 	/* execute a tick of simulation */
 	for (i = 0; i < num_frames; i++)
