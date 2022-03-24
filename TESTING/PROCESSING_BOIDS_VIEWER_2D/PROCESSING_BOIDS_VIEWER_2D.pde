@@ -5,6 +5,7 @@ Objects objects;
 ButtonsThatAreOneClick back_frame_button;
 ButtonsThatAreOneClick next_frame_button;
 ButtonsThatAreOneClick all_frames_button;
+ButtonsThatAreOneClick show_ATONs_button;
 
 String[] frameFiletxt = null;
 int num_boids = 0;
@@ -16,6 +17,7 @@ int dim = 0;
 int max_range_size = 0;
 int frame_start = 10;
 int num_objs = 0;
+boolean draw_ATONs = false;
 
 int max_colorRGB = 255;
 
@@ -41,8 +43,7 @@ void draw()
 	int y_width = 600;
 	int scale_factor = 1;
 	int scale_size = 1;
-
-
+  
 	if ((run_once == false) && (frameFiletxt != null) && (frame_index != 0)) //<>//
 	{
 		background(0,0,0);
@@ -64,18 +65,22 @@ void draw()
 		boids = new Boids(num_boids, scale_size, scale_factor);
 
 		/* create GUI items */
-		next_frame_button = new ButtonsThatAreOneClick(0, 600, 199, 50, color(0,255,0), color(255,255,255), "Next Frame");
-		back_frame_button = new ButtonsThatAreOneClick(200, 600, 199, 50, color(0,0,255), color(255,255,255), "Back Frame");
-		all_frames_button = new ButtonsThatAreOneClick(400, 600, 199, 50, color(255,0,0), color(255,255,255), "Play Frames");
+		next_frame_button = new ButtonsThatAreOneClick(0, 600, 149, 50, color(0,255,0), color(255,255,255), "Next Frame");
+		back_frame_button = new ButtonsThatAreOneClick(150, 600, 149, 50, color(0,0,255), color(255,255,255), "Back Frame");
+		all_frames_button = new ButtonsThatAreOneClick(300, 600, 149, 50, color(255,0,0), color(255,255,255), "Play Frames");
+    show_ATONs_button = new ButtonsThatAreOneClick(450, 600, 149, 50, color(0, 125, 125), color(255,255,255), "Show/Hide ATONs");
+    
+    println(show_ATONs_button.is_button_on());
+    
 		/* update grid with next frame of file */
 		boids.read_next_frame();
-
 		/* initial draw */
     objects.update_draw();
 		boids.update_draw();
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
+    show_ATONs_button.button_draw();
 
 		run_once = true;
 		all_frame_play = false;
@@ -90,6 +95,7 @@ void draw()
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
+    show_ATONs_button.button_draw();
 
 		/* turn off so we only get one click of it */
 		next_frame_button.turn_button_off();
@@ -104,10 +110,24 @@ void draw()
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
-
+    show_ATONs_button.button_draw();
+    
 		/* turn off so we only get one click of it */
 		back_frame_button.turn_button_off();
 	}
+  else if ((run_once == true) && (all_frame_play == false) && (show_ATONs_button.is_button_on() == true))
+  {
+    objects.update_draw();
+    boids.update_draw();
+    next_frame_button.button_draw();
+    back_frame_button.button_draw();
+    all_frames_button.button_draw();
+    show_ATONs_button.button_draw();
+    println("here");
+    show_ATONs_button.turn_button_off();
+    draw_ATONs = !draw_ATONs;
+    println(draw_ATONs);
+  }
 	else if ((run_once == true) && (all_frame_play == false) && (all_frames_button.is_button_on() == true))
 	{
     objects.update_draw();
@@ -115,7 +135,8 @@ void draw()
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
-
+    show_ATONs_button.button_draw();
+    
 		/* turn off so we only get one click of it */
 		all_frames_button.turn_button_off();
 		all_frame_play = true;
@@ -138,11 +159,13 @@ void draw()
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
-
+    show_ATONs_button.button_draw();
+    
 		/* turn off all until done */
 		next_frame_button.turn_button_off();
 		back_frame_button.turn_button_off();
-		all_frames_button.turn_button_off();
+		all_frames_button.turn_button_off();  
+    show_ATONs_button.turn_button_off();
 	}
 	else if (run_once == true)
 	{
@@ -152,7 +175,18 @@ void draw()
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
+    show_ATONs_button.button_draw();
 	}
+  
+  //  println("here");
+  //  show_ATONs_button.turn_button_off();
+  //  draw_ATONs = !draw_ATONs;
+  //  println(draw_ATONs);
+  //}
+  if(draw_ATONs == true) {
+    println("Showing ATONs"); 
+  }
+
 }
 
 void fileSelected(File selection) 
@@ -186,7 +220,8 @@ void mouseClicked()
 	next_frame_button.update_clicked();
 	back_frame_button.update_clicked();
 	all_frames_button.update_clicked();
-	println(frame_index+":"+back_frame_button.is_button_on()+":"+next_frame_button.is_button_on()+":"+all_frames_button.is_button_on()); 
+  show_ATONs_button.update_clicked();
+	println(frame_index+":"+back_frame_button.is_button_on()+":"+next_frame_button.is_button_on()+":"+all_frames_button.is_button_on()+":"+show_ATONs_button.is_button_on()); 
 }
 
 class Boids
