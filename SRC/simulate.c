@@ -415,3 +415,10 @@ void update_ghost(iboid_s *boid, objs_s* objects)
 		}
 	}
 }
+
+boids_s *get_CMs_pointer() {
+	return CMs;
+}
+boids_s *get_IDMs_pointer() {
+	return IDMs;
+}

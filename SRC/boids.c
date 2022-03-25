@@ -115,11 +115,19 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* initialize data structures for simulation */
+	init_simulate(boids_p, &parameters, objs_p);
+	boids_s *CMs = get_CMs_pointer();
+	boids_s *IDMs = get_IDMs_pointer();
+
+	int num_ATONs = CMs->num_boids + IDMs->num_boids;
 	/* initialize the output simulation file */
-	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2, num_objects);
+	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2, num_objects, num_ATONs);
 
 	/* Write objects to the file header */
 	write_objects_to_file(file_p, objs_p);
+
+	write_atons_to_file(file_p, CMs, IDMs);
 
 	/* write initial state to the file */
 	write_frame_to_output_file(file_p, boids_p);
@@ -128,9 +136,6 @@ int main(int argc, char *argv[])
 	clock_t start = clock();
 	clock_t startw, stopw;
 	double timew = 0;
-
-	/* initialize data structures for simulation */
-	init_simulate(boids_p, &parameters, objs_p);
 
 	/* execute a tick of simulation */
 	for (i = 0; i < num_frames; i++)

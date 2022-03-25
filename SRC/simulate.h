@@ -15,3 +15,5 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 
 boids_s *create_cardinal_marks(parameters_s* parameters);
 boids_s *create_isolated_danger_marks(objs_s* objs);
+boids_s *get_CMs_pointer();
+boids_s *get_IDMs_pointer();

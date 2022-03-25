@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "types.h"
 
-FILE* init_output_file_for_simulation(char *filename, int num_boids, int num_frames, parameters_s *parameters, int dim, int num_objs)
+FILE* init_output_file_for_simulation(char *filename, int num_boids, int num_frames, parameters_s *parameters, int dim, int num_objs, int num_ATONs)
 {
 	FILE *file_p;
 
@@ -23,6 +23,7 @@ FILE* init_output_file_for_simulation(char *filename, int num_boids, int num_fra
 	fprintf(file_p, "%f\n", parameters->weight_rule2); //7
 	fprintf(file_p, "%f\n", parameters->weight_rule3); //8
 	fprintf(file_p, "%d\n", num_objs); //9
+	fprintf(file_p, "%d\n", num_ATONs);
 
 
 	return file_p;
@@ -57,5 +58,20 @@ void write_objects_to_file(FILE *f_p, objs_s *objs_p)
 		fprintf(f_p, "%f\n", objs_p->the_objs[i]->position->y);
 		fprintf(f_p, "%d\n", objs_p->the_objs[i]->radius);
 		fprintf(f_p, "%d\n", objs_p->the_objs[i]->is_waypoint);
+	}
+}
+
+void write_atons_to_file(FILE *f_p, boids_s *CMs, boids_s *IDMs) {
+	for (int i = 0; i < CMs->num_boids; i++) {
+		fprintf(f_p, "%f\n", CMs->the_boids[i]->position->x);
+		fprintf(f_p, "%f\n", CMs->the_boids[i]->position->y);
+		fprintf(f_p, "%f\n", CMs->the_boids[i]->velocity->x);
+		fprintf(f_p, "%f\n", CMs->the_boids[i]->velocity->y);
+	}
+	for (int i = 0; i < IDMs->num_boids; i++) {
+		fprintf(f_p, "%f\n", IDMs->the_boids[i]->position->x);
+		fprintf(f_p, "%f\n", IDMs->the_boids[i]->position->y);
+		fprintf(f_p, "%f\n", IDMs->the_boids[i]->velocity->x);
+		fprintf(f_p, "%f\n", IDMs->the_boids[i]->velocity->y);
 	}
 }

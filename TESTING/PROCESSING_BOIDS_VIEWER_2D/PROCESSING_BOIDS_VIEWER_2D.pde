@@ -1,6 +1,7 @@
 color background_color;
 Boids boids;
 Objects objects;
+Boids ATONs;
 
 ButtonsThatAreOneClick back_frame_button;
 ButtonsThatAreOneClick next_frame_button;
@@ -17,6 +18,7 @@ int dim = 0;
 int max_range_size = 0;
 int frame_start = 10;
 int num_objs = 0;
+int num_ATONs = 0;
 boolean draw_ATONs = false;
 
 int max_colorRGB = 255;
@@ -150,7 +152,7 @@ void draw()
 		{
 			all_frame_play = false;
 			frame_index = 1; // where the frames start
-			read_index = frame_start + (num_objs * 3); // where the reading start
+			read_index = frame_start + (num_objs * 4); // where the reading start
 		}
 
 		background(0,0,0);
@@ -208,8 +210,10 @@ void fileSelected(File selection)
 		dimension_size = int(frameFiletxt[2]);
 		dim = int(frameFiletxt[3]);
     num_objs = int(frameFiletxt[9]);
+    num_ATONs = int(frameFiletxt[10]);
     read_index = frame_start; // where the reading start
     objects = new Objects(num_objs); 
+    ATONs = new Boids(num_ATONs, 1, 1);
 		frame_index = 1; // where the frames start //<>//
 		println("frame_index "+frame_index);
 	}
@@ -313,6 +317,11 @@ class Boid
     velocity = new PVector(0,0);
     position = new PVector(0,0);
     this.boid_color = color(255, 255, 255);
+  }
+  
+  Boid(float p_x, float p_y, float v_x, float v_y) {
+    position = new PVector(p_x, p_y);
+    velocity = new PVector(v_x, v_y);
   }
 
   void update_position(float x, float y)
