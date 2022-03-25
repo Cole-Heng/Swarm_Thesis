@@ -16,7 +16,7 @@ int read_index = 0;
 int dimension_size = 0;
 int dim = 0;
 int max_range_size = 0;
-int frame_start = 10;
+int frame_start = 11;
 int num_objs = 0;
 int num_ATONs = 0;
 boolean draw_ATONs = false;
@@ -79,6 +79,9 @@ void draw()
 		/* initial draw */
     objects.update_draw();
 		boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
@@ -94,6 +97,9 @@ void draw()
 
     objects.update_draw();
 		boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
@@ -109,6 +115,9 @@ void draw()
     
     objects.update_draw();
 		boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
@@ -121,11 +130,28 @@ void draw()
   {
     objects.update_draw();
     boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
     next_frame_button.button_draw();
     back_frame_button.button_draw();
     all_frames_button.button_draw();
     show_ATONs_button.button_draw();
-    println("here");
+    show_ATONs_button.turn_button_off();
+    draw_ATONs = !draw_ATONs;
+    println(draw_ATONs);
+  }
+  else if ((run_once == true) && (all_frame_play == true) && (show_ATONs_button.is_button_on() == true))
+  {
+    objects.update_draw();
+    boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
+    next_frame_button.button_draw();
+    back_frame_button.button_draw();
+    all_frames_button.button_draw();
+    show_ATONs_button.button_draw();
     show_ATONs_button.turn_button_off();
     draw_ATONs = !draw_ATONs;
     println(draw_ATONs);
@@ -134,6 +160,9 @@ void draw()
 	{
     objects.update_draw();
 		boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
@@ -158,6 +187,9 @@ void draw()
 		background(0,0,0);
     objects.update_draw();
 		boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
@@ -174,21 +206,14 @@ void draw()
 		background(0,0,0);
     objects.update_draw();
 		boids.update_draw();
+    if (draw_ATONs == true) {
+      ATONs.update_draw();  
+    }
 		next_frame_button.button_draw();
 		back_frame_button.button_draw();
 		all_frames_button.button_draw();
     show_ATONs_button.button_draw();
 	}
-  
-  //  println("here");
-  //  show_ATONs_button.turn_button_off();
-  //  draw_ATONs = !draw_ATONs;
-  //  println(draw_ATONs);
-  //}
-  if(draw_ATONs == true) {
-    println("Showing ATONs"); 
-  }
-
 }
 
 void fileSelected(File selection) 
@@ -213,7 +238,7 @@ void fileSelected(File selection)
     num_ATONs = int(frameFiletxt[10]);
     read_index = frame_start; // where the reading start
     objects = new Objects(num_objs); 
-    ATONs = new Boids(num_ATONs, 1, 1);
+    ATONs = new Boids(num_ATONs);
 		frame_index = 1; // where the frames start //<>//
 		println("frame_index "+frame_index);
 	}
@@ -247,6 +272,19 @@ class Boids
 			boids[i] = new Boid();
 		}
 	}
+
+  Boids(int num_ATONs) { //used to initialize ATONs. Actual boids use the above constructor
+    this.num_boids = num_ATONs;
+    this.scale_size = -1;
+    this.scale_factor = -1;
+    
+    boids = new Boid[num_ATONs];
+    
+    for (int i = 0; i < num_ATONs; i++) {
+      boids[i] = new Boid(float(frameFiletxt[read_index]), float(frameFiletxt[read_index+1]), int(frameFiletxt[read_index+2]), int(frameFiletxt[read_index+3]));
+      read_index += 4;
+    }
+  }
 	void update_draw()
 	{
 		for (int i=0; i < this.num_boids; i++)
@@ -319,9 +357,12 @@ class Boid
     this.boid_color = color(255, 255, 255);
   }
   
-  Boid(float p_x, float p_y, float v_x, float v_y) {
+  Boid(float p_x, float p_y, float v_x, float v_y) { //usually used only by ATONS, actual boid uses default constructor
     position = new PVector(p_x, p_y);
     velocity = new PVector(v_x, v_y);
+    this.boid_color = color(256, 125, 125);
+    this.life_status = 1;
+    this.is_leader = 1;
   }
 
   void update_position(float x, float y)
@@ -350,7 +391,7 @@ class Boid
   
   void update_draw()
   {
-        float theta = velocity.heading2D() + radians(90);
+    float theta = velocity.heading2D() + radians(90);
     float r = 3.0;
     if (life_status == 1) //alive
     {
