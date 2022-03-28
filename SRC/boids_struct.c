@@ -98,6 +98,7 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 
 	/* allocate the boids */
 	boids_s *boids = allocate_boids(*num_boids);
+	vector_s temp_vec;
 	for (i = 0; i < *num_boids; i++)
 	{
 #ifdef DIM_3D
@@ -118,7 +119,14 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 		}
 
 		set_boid_position_xy(boids->the_boids[i], read[0], read[1]);
-		set_boid_velocity_xy(boids->the_boids[i], read[2], read[3]);
+		if(read[2] == 0 && read[3] == 0)
+		{
+			rand_pos_or_neg_vector(&temp_vec, parameters->dimension_size);
+			normalize_vector(&temp_vec); // all speed is 1 presently
+			copy_vector(&temp_vec, boids->the_boids[i]->velocity);
+		} else {
+			set_boid_velocity_xy(boids->the_boids[i], read[2], read[3]);
+		}
 		if (read[4]) { // boid is a leader
 			set_boid_leader(boids->the_boids[i], read[4]);
 			assign_ghost_boid(boids->the_boids[i]);
