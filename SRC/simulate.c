@@ -48,6 +48,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 		CMs->the_boids[j]->position->x = 0;
 		CMs->the_boids[j]->position->y = 2 * j * parameters->boid_size_radius;
 		copy_vector(temp_vec, CMs->the_boids[j]->velocity);
+		CMs->the_boids[j]->life_status = DEAD;
 	}
 	i = j;
 
@@ -57,6 +58,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 		CMs->the_boids[j + i]->position->x = 2 * j * parameters->boid_size_radius;
 		CMs->the_boids[j + i]->position->y = parameters->dimension_size;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
+		CMs->the_boids[j + i]->life_status = DEAD;
 	}
 	i = 2 * j;
 
@@ -66,6 +68,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 		CMs->the_boids[j + i]->position->x = parameters->dimension_size;
 		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
+		CMs->the_boids[j + i]->life_status = DEAD;
 	}
 
 	i = 3 * j;
@@ -76,12 +79,18 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
 		CMs->the_boids[j + i]->position->y = 0;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
+		CMs->the_boids[j + i]->life_status = DEAD;
 	}
 
 	fprintf(out, "#Markers/wall: %d\n", num_boids_per_wall);
 	fprintf(out, "#Markers: %d\n", CMs->num_boids);
 	for (int i = 0; i < CMs->num_boids; i++) {
 		fprintf(out, "marker[%d] pos[%f, %f] vel[%f, %f]\n", (i), CMs->the_boids[i]->position->x, CMs->the_boids[i]->position->y, CMs->the_boids[i]->velocity->x, CMs->the_boids[i]->velocity->y);
+	}
+
+	for (int i = 0; i < CMs->num_boids; i++) {
+		CMs->the_boids[i]->life_status = DEAD;
+		fprintf(out, "D/A:%d\n", CMs->the_boids[i]->life_status);
 	}
 	fflush(out);
 	/* close output file */
@@ -114,6 +123,7 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 		temp_vec->y = -1 * objs->the_objs[i]->radius;
 		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
 		IDMs->the_boids[j]->velocity->y = -1;
+		IDMs->the_boids[j]->life_status = DEAD;
 		fprintf(out, "marker[%d] N on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
 		j++;
 	}
@@ -125,6 +135,7 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 		temp_vec->y = objs->the_objs[i]->radius;
 		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
 		IDMs->the_boids[j]->velocity->y = 1;
+		IDMs->the_boids[j]->life_status = DEAD;
 		fprintf(out, "marker[%d] S on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
 		j++;
 	}
@@ -137,6 +148,7 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 		temp_vec->x = objs->the_objs[i]->radius;
 		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
 		IDMs->the_boids[j]->velocity->x = 1;
+		IDMs->the_boids[j]->life_status = DEAD;
 		fprintf(out, "marker[%d] E on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
 		j++;
 	}
@@ -148,10 +160,15 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 		temp_vec->x = -1 * objs->the_objs[i]->radius;
 		add_vector_new(IDMs->the_boids[j]->position, objs->the_objs[i]->position, temp_vec);
 		IDMs->the_boids[j]->velocity->x = -1;
+		IDMs->the_boids[j]->life_status = DEAD;
 		fprintf(out, "marker[%d] W on obj[%d] pos[%f, %f] vel[%f, %f]\n", (j), (i), IDMs->the_boids[j]->position->x, IDMs->the_boids[j]->position->y, IDMs->the_boids[j]->velocity->x, IDMs->the_boids[j]->velocity->y);
 		j++;
 	}
 
+	for (int i = 0; i < IDMs->num_boids; i++) {
+		IDMs->the_boids[i]->life_status = DEAD;
+		fprintf(out, "D/A:%d\n", IDMs->the_boids[i]->life_status);
+	}
 	fflush(out);
 	/* close output file */
 	fclose(out);
@@ -323,6 +340,12 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 			{
 				copy_boid(boids_p->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
 				neighbours_p->num_boids++;
+				#ifdef SHARE_GOAL
+				if(current_boid->is_leader == TRUE && boids_p->the_boids[i]->life_status == ALIVE && boids_p->the_boids[i]->is_leader == FALSE) {
+					set_boid_leader(boids_p->the_boids[i], TRUE);
+					printf("mod boid #%d at p[%f, %f] leader: %d\n", boids_p->the_boids[i]->id, boids_p->the_boids[i]->position->x, boids_p->the_boids[i]->position->y, boids_p->the_boids[i]->is_leader);
+				}
+				#endif
 			}
 		}
 
@@ -367,6 +390,12 @@ short check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_
 			// neighbours->the_boids[i]->life_status = DEAD; //Need this?
 			return TRUE;
 		}
+		// #ifdef SHARE_GOAL
+		// else if(current_boid->is_leader == TRUE && neighbours->the_boids[i]->life_status == ALIVE && neighbours->the_boids[i]->is_leader == FALSE) {
+		// 	set_boid_leader(neighbours->the_boids[i], TRUE);
+		// 	printf("mod boid #%d at p[%f, %f] leader: %d\n", neighbours->the_boids[i]->id, neighbours->the_boids[i]->position->x, neighbours->the_boids[i]->position->y, neighbours->the_boids[i]->is_leader);
+		// }
+		// #endif
 	}
 	return FALSE;
 }

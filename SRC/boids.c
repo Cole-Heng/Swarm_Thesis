@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 				printf("Error running - boids FILE_INIT file_name file_to_output_to\n");
 				return -1;
 			}
-		}
+		} 
 		else
 		{
 			printf("Error running - boids FILE_INIT file_name file_to_output_to\n");

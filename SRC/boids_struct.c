@@ -210,7 +210,11 @@ void set_boid_position_xy(iboid_s *boid, float x, float y)
 
 void set_boid_leader(iboid_s *boid, short is_leader) 
 {
+	if(boid->is_leader == FALSE && is_leader == TRUE){
+		assign_ghost_boid(boid);
+	}
 	boid->is_leader = is_leader;
+	printf("moded boid #%d at p[%f, %f] leader: %d\n", boid->id, boid->position->x, boid->position->y, boid->is_leader);
 }
 
 void assign_ghost_boid(iboid_s *boid) 

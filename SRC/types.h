@@ -29,6 +29,8 @@
 #define ENFORCE_DEATH // WARNING TRACK_DEATH must be defined to enforce death
 #endif
 
+#define SHARE_GOAL //leaders share leader status with boids they are near to
+
 #ifndef TYPES_H
 #define TYPES_H
 
