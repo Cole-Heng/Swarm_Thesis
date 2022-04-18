@@ -29,7 +29,9 @@
 #define ENFORCE_DEATH // WARNING TRACK_DEATH must be defined to enforce death
 #endif
 
-#define SHARE_GOAL //leaders share leader status with boids they are near to
+//#define SHARE_GOAL //leaders share leader status with boids they are near to
+
+#define TRACK_SWARM // track frames that the swarm contrains all boids
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -83,6 +85,7 @@ struct iboid_s_s
 	#endif
 	short is_leader;
 	ghost_boid_s *ghost_boid;
+	short was_visited;
 };
 
 

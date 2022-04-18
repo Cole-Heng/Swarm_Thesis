@@ -17,3 +17,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters);
 boids_s *create_isolated_danger_marks(objs_s* objs);
 boids_s *get_CMs_pointer();
 boids_s *get_IDMs_pointer();
+
+int nodes_in_swarm(boids_s *swarm, boids_s *boids_p, int radius);
+void set_all_unvisted(boids_s *swarm);
+void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radius);

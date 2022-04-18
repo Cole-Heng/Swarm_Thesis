@@ -214,7 +214,7 @@ void set_boid_leader(iboid_s *boid, short is_leader)
 		assign_ghost_boid(boid);
 	}
 	boid->is_leader = is_leader;
-	printf("moded boid #%d at p[%f, %f] leader: %d\n", boid->id, boid->position->x, boid->position->y, boid->is_leader);
+	//printf("moded boid #%d at p[%f, %f] leader: %d\n", boid->id, boid->position->x, boid->position->y, boid->is_leader);
 }
 
 void assign_ghost_boid(iboid_s *boid) 
@@ -250,6 +250,7 @@ iboid_s *allocate_boid()
 	#ifdef TRACK_DEATH
 		boid->life_status = ALIVE;
 	#endif
+	boid->was_visited = FALSE;
 	return boid;
 }
 
@@ -280,6 +281,8 @@ void copy_boid(iboid_s *from, iboid_s *to)
 	copy_vector(from->position, to->position);
 	copy_vector(from->velocity, to->velocity);
 	to->mass = from->mass;
+	to->was_visited = from->was_visited;
+	to->id = from->id;
 }
 
 void sum_all_boids_position(boids_s *boids_p, vector_s *sum)
