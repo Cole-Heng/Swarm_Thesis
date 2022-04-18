@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < num_frames; i++)
 	{
 		/* simulate the tick for conways */
-		simulate_a_frame(boids_p, &parameters, objs_p);
+		simulate_a_frame(boids_p, &parameters, objs_p, i);
 
 		startw = clock();
 		/* write to the file */
@@ -149,6 +149,8 @@ int main(int argc, char *argv[])
 		stopw = clock();
 		timew += (double)(stopw - startw) * 1000.0 / CLOCKS_PER_SEC;
 	}
+
+	output_simulation_final_stats(boids_p);
 
 	// TIMING
 	clock_t stop = clock();

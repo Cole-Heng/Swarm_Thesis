@@ -251,6 +251,7 @@ iboid_s *allocate_boid()
 		boid->life_status = ALIVE;
 	#endif
 	boid->was_visited = FALSE;
+	boid->success = FALSE;
 	return boid;
 }
 

@@ -10,8 +10,9 @@ boids_s *neighbours_p;
 boids_s *CMs; // Cardinal Marks (wall boids)
 boids_s *IDMs; // Isolated Danger Marks (Object boids)
 #ifdef TRACK_SWARM
-	FILE *file_p;
+	FILE *file_sim_stats;
 #endif
+short full_swarm = FALSE;
 
 // PROTOTYPES
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight);
@@ -25,7 +26,7 @@ void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs)
 	IDMs = create_isolated_danger_marks(objs);
 	neighbours_p = allocate_boids(boids_p->num_boids + CMs->num_boids);
 	#ifdef TRACK_SWARM
-		file_p = (FILE*)fopen("swarm_count.log", "w");
+		file_sim_stats = (FILE*)fopen("sim_statistics.log", "w");
 	#endif
 }
 void free_simulate()
@@ -186,7 +187,7 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
  * Rule 2: Boids try to keep a small distance away from other objects (including other boids).
  * Rule 3: Boids try to match velocity with near boids.
  */
-void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p)
+void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p, int frame_num)
 {
 	int i;
 
@@ -241,8 +242,15 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 		find_links(links, boids_p, boids_p->the_boids[0], parameters->neighbour_distance);
 		boids_p->the_boids[0]->was_visited = TRUE;
 		int num_in_swarm = nodes_in_swarm(links, boids_p, parameters->neighbour_distance) + 1;
-		fprintf(file_p, "%d\n", num_in_swarm);
-		fflush(file_p);
+		if (full_swarm == TRUE && num_in_swarm != boids_p->num_boids){ // swarm broke
+			fprintf(file_sim_stats, "swarm_broken: %d\n", frame_num);
+			fflush(file_sim_stats);
+			full_swarm = FALSE;
+		} else if (full_swarm == FALSE && num_in_swarm == boids_p->num_boids){ //swarm achieved
+			fprintf(file_sim_stats, "swarm_achieved: %d\n", frame_num);
+			fflush(file_sim_stats);
+			full_swarm = TRUE;
+		}
 		free_boids(links);
 	#endif
 
@@ -353,6 +361,11 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 			if (current_boid->id == boids_p->the_boids[i]->id){
 				continue; // current_boid and the boid from the list are the same object, so skip
 			}
+			#ifndef AVOID_SUCCESS
+				if (boids_p->the_boids[i]->success == TRUE) {
+					continue;
+				}
+			#endif
 			if (distance_between_vectors(boids_p->the_boids[i]->position, current_boid->position) <= radius)
 			{
 				copy_boid(boids_p->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
@@ -436,7 +449,10 @@ short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dime
 short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s* objects) {
 	for (int i = 0; i < objects->num_objs; i++){
 		if (distance_between_vectors(current_boid->position, objects->the_objs[i]->position) <= (boid_size_radius + objects->the_objs[i]->radius)) {
-			return TRUE;
+			if (objects->the_objs[i]->is_waypoint == TRUE) {
+				current_boid->success = TRUE;
+			}
+			return TRUE; 
 		}
 	}
 	return FALSE;
@@ -477,10 +493,6 @@ void set_all_unvisted(boids_s *boids_p) {
 
 int nodes_in_swarm(boids_s *linked, boids_s *boids_p, int radius) {
 	int count = 0;
-	for (int j = 0; j < linked->num_boids; j++) {
-				printf("%d\n", linked->the_boids[j]->id);
-		}
-		printf("--------\n");
 	for (int i = 0; i < linked->num_boids; i++) {
 		// if (linked->the_boids[i]->was_visited){
 		// 	break;
@@ -525,4 +537,21 @@ void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radiu
 			}
 		}
 	}
+}
+
+void output_simulation_final_stats(boids_s *boids_p) {
+	int num_alive = 0;
+	int num_success = 0;
+	for (int i = 0; i < boids_p->num_boids; i++) {
+		if (boids_p->the_boids[i]->life_status == ALIVE) {
+			num_alive++;
+		}
+		if (boids_p->the_boids[i]->success == TRUE) {
+			num_success++;
+		}
+	}
+	fprintf(file_sim_stats, "boids_at_waypoint: %d\n", num_success);
+	fprintf(file_sim_stats, "boids_alive: %d\n", num_alive);
+	fflush(file_sim_stats);
+	fclose(file_sim_stats);
 }
