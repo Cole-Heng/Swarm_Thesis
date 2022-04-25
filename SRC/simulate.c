@@ -451,6 +451,7 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 		if (distance_between_vectors(current_boid->position, objects->the_objs[i]->position) <= (boid_size_radius + objects->the_objs[i]->radius)) {
 			if (objects->the_objs[i]->is_waypoint == TRUE) {
 				current_boid->success = TRUE;
+				continue;
 			}
 			return TRUE; 
 		}
@@ -540,18 +541,30 @@ void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radiu
 }
 
 void output_simulation_final_stats(boids_s *boids_p) {
-	int num_alive = 0;
-	int num_success = 0;
+	int success_and_alive = 0;
+	int success_and_dead = 0;
+	int fail_and_alive = 0;
+	int fail_and_dead = 0;
 	for (int i = 0; i < boids_p->num_boids; i++) {
 		if (boids_p->the_boids[i]->life_status == ALIVE) {
-			num_alive++;
-		}
-		if (boids_p->the_boids[i]->success == TRUE) {
-			num_success++;
+			if (boids_p->the_boids[i]->success == TRUE) {
+				success_and_alive++;
+			} else {
+				fail_and_alive++;
+			}
+		} else {
+			if (boids_p->the_boids[i]->success == TRUE) {
+				success_and_dead++;
+			} else {
+				fail_and_dead++;
+			}
 		}
 	}
-	fprintf(file_sim_stats, "boids_at_waypoint: %d\n", num_success);
-	fprintf(file_sim_stats, "boids_alive: %d\n", num_alive);
+	fprintf(file_sim_stats, "success_and_alive: %d\n", success_and_alive);
+	fprintf(file_sim_stats, "success_and_dead: %d\n", success_and_dead);
+	fprintf(file_sim_stats, "fail_and_alive: %d\n", fail_and_alive);
+	fprintf(file_sim_stats, "fail_and_dead: %d\n", fail_and_dead);
+
 	fflush(file_sim_stats);
 	fclose(file_sim_stats);
 }

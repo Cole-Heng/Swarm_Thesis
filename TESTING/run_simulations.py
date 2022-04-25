@@ -14,21 +14,25 @@ def main():
     # call(["make"])
     # call(["cd", "TESTING/"])
     file_in = open(str(sys.argv[2]), "r")
-    num_boids = int(file_in.read(1))
+    num_boids = int(file_in.readline())
     file_in.close()
     trial_number = [i for i in range(int(sys.argv[1]))]
     swarm_achieved = [0] * int(sys.argv[1])
     swarm_broken = [False] * int(sys.argv[1])
-    num_success = [0] * int(sys.argv[1])
-    num_alive = [0] * int(sys.argv[1])
+    success_and_alive = [0] * int(sys.argv[1])
+    success_and_dead = [0] * int(sys.argv[1])
+    fail_and_alive = [0] * int(sys.argv[1])
+    fail_and_dead = [0] * int(sys.argv[1])
     for i in range(int(sys.argv[1])):
         call(["../boids_sim", "FILE_INIT", str(sys.argv[2]), "sim_out.log"])
         sleep(0.5)
         stats = parse_sim_stats()
         swarm_achieved[i] = int(stats[0])
         swarm_broken[i] = stats[1]
-        num_success[i] = int(stats[2])
-        num_alive[i] = int(stats[3])
+        success_and_alive[i] = int(stats[2])
+        success_and_dead[i] = int(stats[3])
+        fail_and_alive[i] = int(stats[4])
+        fail_and_dead[i] = int(stats[5])
         sleep(0.5)
 
 
@@ -39,8 +43,8 @@ def main():
 
         
 
-    print(str(trial_number))
-    print(str(swarm_achieved))
+    # print(str(trial_number))
+    # print(str(swarm_achieved))
 
     labels = 'Never achieved', 'Stayed Together', 'Broke'
     never_achieved = 0
@@ -57,21 +61,46 @@ def main():
     fig1, ax1 = plt.subplots()
     ax1.pie(sizes, explode=explode, labels=labels, autopct="%1.1f%%", shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.title("Swarm Statuses")
     plt.show()
 
-    plt.plot(trial_number, num_success)
+    num_success = success_and_alive + success_and_dead
+    plt.hist(num_success)
+    plt.title("Number of Successful Boids")
+    plt.xlabel("Number of Boids (out of " + str(num_boids) + ")")
+    plt.ylabel("Number of Simulations")
     plt.show()
 
-    plt.plot(trial_number, num_alive)
+    num_alive = success_and_alive + fail_and_alive
+    plt.hist(num_alive)
+    plt.title("Number of Boids Alive")
+    plt.xlabel("Number of Boids (out of " + str(num_boids) + ")")
+    plt.ylabel("Number of Simulations")
     plt.show()
 
-    plt.plot(trial_number, swarm_achieved)
+    plt.hist(swarm_achieved, 20)
+    plt.title("Frame swarm was achieved")
+    plt.xlabel("Frame Number (-1 = never)")
+    plt.ylabel("Number of Simulations")
+    plt.show()
+
+    labels = 'Success and Alive', 'Success and Dead', 'Fail and Alive', 'Fail and Dead'
+    sizes = [sum(success_and_alive), sum(success_and_dead), sum(fail_and_alive), sum(fail_and_dead)]
+    explode = (0.1, 0, 0, 0)
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, explode=explode, labels=labels, autopct="%1.1f%%", shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.title("Sum of all Boid Statuses (" + str(num_boids * int(sys.argv[1])) + " Total Boids Simulated)")
     plt.show()
 
 
 def parse_sim_stats():
     swarm_achieved = 0
     swarm_broke = False
+    success_and_alive = 0
+    success_and_dead = 0
+    fail_and_alive = 0
+    fail_and_dead = 0
     num_success = 0
     num_alive = 0
     achieved_set = False
@@ -85,10 +114,14 @@ def parse_sim_stats():
                 swarm_achieved = int(temp[1])
         elif (temp[0] == "swarm_broken:"):
             swarm_broke = True
-        elif (temp[0] == "boids_at_waypoint:"):
-            num_success = temp[1]
-        elif (temp[0] == "boids_alive:"):
-            num_alive = temp[1]
+        elif (temp[0] == "success_and_alive:"):
+            success_and_alive = temp[1]
+        elif (temp[0] == "success_and_dead:"):
+            success_and_dead = temp[1]
+        elif (temp[0] == "fail_and_alive:"):
+            fail_and_alive = temp[1]
+        elif (temp[0] == "fail_and_dead:"):
+            fail_and_dead = temp[1]
         else:
             print("WARNING: Unknown line read from simulation stats log:")
             print(temp[0])
@@ -98,7 +131,7 @@ def parse_sim_stats():
     if (achieved_set == False):
         swarm_achieved = -1
     file_in.close()
-    return [swarm_achieved, swarm_broke, num_success, num_alive]
+    return [swarm_achieved, swarm_broke, success_and_alive, success_and_dead, fail_and_alive, fail_and_dead]
 
 
 def get_first_frame_of_swarm(num_boids):

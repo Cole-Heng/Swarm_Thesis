@@ -33,7 +33,7 @@
 
 #define TRACK_SWARM // track frames that the swarm contrains all boids
 
-// #define AVOID_SUCCESS // define if boids should avoid other boids that have reached the waypoint (usually leave undefined)
+#define AVOID_SUCCESS // define if boids should avoid other boids that have reached the waypoint (usually leave undefined)
 
 #ifndef TYPES_H
 #define TYPES_H
