@@ -1,3 +1,7 @@
+# Cole Hengstebeck, hengstcm@miamioh.edu
+# Script to run a number of boid simulations back-to-back and present cumulative
+# data about the simulations. When displaying analysis window, press "Q" to close
+
 from genericpath import exists
 from re import T
 from sre_constants import SUCCESS
@@ -11,6 +15,7 @@ import os
 
 
 def main():
+    # Handle argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "num_sims", help="The number of simulations to run", type=int)
@@ -21,6 +26,8 @@ def main():
     parser.add_argument("-S", "--suppress_analysis",
                         help="Run simulations but don't show analysis graphs for debug purposes", action="store_true")
     args = parser.parse_args()
+
+    # Initialize dictionaries for simulation data
     file_in = open(args.init_file, "r")
     num_boids = int(file_in.readline())
     file_in.close()
@@ -31,9 +38,12 @@ def main():
     success_and_dead = [0] * args.num_sims
     fail_and_alive = [0] * args.num_sims
     fail_and_dead = [0] * args.num_sims
+
+    # Make a dir to save all simulation logs
     if not os.path.exists("./simulation_logs/"):
         os.mkdir("simulation_logs")
 
+    # Run simulations with or without saving all the log files
     if args.log_all:
         for i in range(args.num_sims):
             call(["../boids_sim", "FILE_INIT",
@@ -61,6 +71,7 @@ def main():
             fail_and_dead[i] = int(stats[5])
             sleep(0.1)
 
+    # Display all analysis plots
     if not args.suppress_analysis:
         labels = 'Never achieved', 'Stayed Together', 'Broke'
         never_achieved = 0
@@ -78,7 +89,6 @@ def main():
         fig, axs = plt.subplots(2, 3, constrained_layout=True)
         axs[0, 0].pie(sizes, explode=explode, labels=labels,
                       autopct="%1.1f%%", shadow=True, startangle=90)
-        # Equal aspect ratio ensures that pie is drawn as a circle.
         axs[0, 0].set_title("Swarm Statuses")
 
         num_success = success_and_alive + success_and_dead
@@ -102,10 +112,8 @@ def main():
         sizes = [sum(success_and_alive), sum(success_and_dead),
                  sum(fail_and_alive), sum(fail_and_dead)]
         explode = (0.1, 0, 0, 0)
-        # fig1, ax1 = plt.subplots()
         axs[1, 1].pie(sizes, explode=explode, labels=labels,
                       autopct="%1.1f%%", shadow=True, startangle=90)
-        # Equal aspect ratio ensures that pie is drawn as a circle.
         axs[1, 1].axis('equal')
         axs[1, 1].set_title("Sum of all Boid Statuses (" + str(num_boids *
                                                                args.num_sims) + " Total Boids Simulated)")
@@ -113,7 +121,6 @@ def main():
         plt.suptitle("Swarm Simulation Analysis. {} Simulations Run".format(
             args.num_sims), fontweight='bold')
         mng = plt.get_current_fig_manager()
-# works on Ubuntu??? >> did NOT working on windows
         mng.full_screen_toggle()
         plt.show()
 
@@ -156,22 +163,6 @@ def parse_sim_stats():
         swarm_achieved = -1
     file_in.close()
     return [swarm_achieved, swarm_broke, success_and_alive, success_and_dead, fail_and_alive, fail_and_dead]
-
-
-def get_first_frame_of_swarm(num_boids):
-    file_in = open("swarm_count.log", "r")
-    i = 0
-    frame = int(file_in.readline())
-
-    for line in file_in:
-        # print(str(line))
-        if (int(line) == num_boids):
-            file_in.close()
-            print(i)
-            return i
-        i += 1
-    file_in.close()
-    return -1
 
 
 if __name__ == "__main__":
