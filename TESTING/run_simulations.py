@@ -5,46 +5,60 @@ from subprocess import call
 import numpy as np
 import matplotlib.pyplot as plt
 from time import sleep
+import argparse
+
 
 def main():
-    if (len(sys.argv) != 3):
-        print("Usage: run_simulations.py <# of simulations to run> <path to init file>")
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "num_sims", help="The number of simulations to run", type=int)
+    parser.add_argument(
+        "init_file", help="The init file for each simulation to use", type=str)
+    parser.add_argument(
+        "-L", "--log_all", help="Define if the log file for all simulations should be kept. Otherwise only the last simulation is kept", action="store_true")
+    args = parser.parse_args()
+    # if (len(sys.argv) != 3):
+    #     print("Usage: run_simulations.py <# of simulations to run> <path to init file>")
+    #     sys.exit()
     # call(["cd", "../"])
     # call(["make"])
     # call(["cd", "TESTING/"])
-    file_in = open(str(sys.argv[2]), "r")
+    file_in = open(args.init_file, "r")
     num_boids = int(file_in.readline())
     file_in.close()
-    trial_number = [i for i in range(int(sys.argv[1]))]
+    trial_number = [i for i in range(args.num_sims)]
     swarm_achieved = [0] * int(sys.argv[1])
     swarm_broken = [False] * int(sys.argv[1])
     success_and_alive = [0] * int(sys.argv[1])
     success_and_dead = [0] * int(sys.argv[1])
     fail_and_alive = [0] * int(sys.argv[1])
     fail_and_dead = [0] * int(sys.argv[1])
-    for i in range(int(sys.argv[1])):
-        call(["../boids_sim", "FILE_INIT", str(sys.argv[2]), "sim_out.log"])
-        sleep(0.5)
-        stats = parse_sim_stats()
-        swarm_achieved[i] = int(stats[0])
-        swarm_broken[i] = stats[1]
-        success_and_alive[i] = int(stats[2])
-        success_and_dead[i] = int(stats[3])
-        fail_and_alive[i] = int(stats[4])
-        fail_and_dead[i] = int(stats[5])
-        sleep(0.5)
-
-
-        # print(i)
-        # sleep(0.5)
-        # swarm_achieved[i] = get_first_frame_of_swarm(num_boids)
-        # sleep(0.5)
-
-        
-
-    # print(str(trial_number))
-    # print(str(swarm_achieved))
+    if args.log_all:
+        for i in range(args.num_sims):
+            call(["../boids_sim", "FILE_INIT",
+                 str(args.init_file), "sim_out{}.log".format(i)])
+            sleep(0.1)
+            stats = parse_sim_stats()
+            swarm_achieved[i] = int(stats[0])
+            swarm_broken[i] = stats[1]
+            success_and_alive[i] = int(stats[2])
+            success_and_dead[i] = int(stats[3])
+            fail_and_alive[i] = int(stats[4])
+            fail_and_dead[i] = int(stats[5])
+            sleep(0.1)
+    else:
+        for i in range(args.num_sims):
+            call(["../boids_sim", "FILE_INIT",
+                 str(args.init_file), "sim_out.log"])
+            sleep(0.1)
+            stats = parse_sim_stats()
+            swarm_achieved[i] = int(stats[0])
+            swarm_broken[i] = stats[1]
+            success_and_alive[i] = int(stats[2])
+            success_and_dead[i] = int(stats[3])
+            fail_and_alive[i] = int(stats[4])
+            fail_and_dead[i] = int(stats[5])
+            sleep(0.1)
 
     labels = 'Never achieved', 'Stayed Together', 'Broke'
     never_achieved = 0
@@ -55,12 +69,15 @@ def main():
     for i in swarm_broken:
         if (i == True):
             num_broke += 1
-    sizes = [100 * never_achieved / int(sys.argv[1]), 100 * (int(sys.argv[1]) - never_achieved - num_broke) / int(sys.argv[1]), 100 * num_broke / int(sys.argv[1])]
+    sizes = [100 * never_achieved / int(sys.argv[1]), 100 * (int(
+        sys.argv[1]) - never_achieved - num_broke) / int(sys.argv[1]), 100 * num_broke / int(sys.argv[1])]
     explode = (0, 0.1, 0)
 
     fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, explode=explode, labels=labels, autopct="%1.1f%%", shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1.pie(sizes, explode=explode, labels=labels,
+            autopct="%1.1f%%", shadow=True, startangle=90)
+    # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1.axis('equal')
     plt.title("Swarm Statuses")
     plt.show()
 
@@ -85,12 +102,16 @@ def main():
     plt.show()
 
     labels = 'Success and Alive', 'Success and Dead', 'Fail and Alive', 'Fail and Dead'
-    sizes = [sum(success_and_alive), sum(success_and_dead), sum(fail_and_alive), sum(fail_and_dead)]
+    sizes = [sum(success_and_alive), sum(success_and_dead),
+             sum(fail_and_alive), sum(fail_and_dead)]
     explode = (0.1, 0, 0, 0)
     fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, explode=explode, labels=labels, autopct="%1.1f%%", shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    plt.title("Sum of all Boid Statuses (" + str(num_boids * int(sys.argv[1])) + " Total Boids Simulated)")
+    ax1.pie(sizes, explode=explode, labels=labels,
+            autopct="%1.1f%%", shadow=True, startangle=90)
+    # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1.axis('equal')
+    plt.title("Sum of all Boid Statuses (" + str(num_boids *
+              int(sys.argv[1])) + " Total Boids Simulated)")
     plt.show()
 
 
@@ -140,7 +161,7 @@ def get_first_frame_of_swarm(num_boids):
     frame = int(file_in.readline())
 
     for line in file_in:
-        #print(str(line))
+        # print(str(line))
         if (int(line) == num_boids):
             file_in.close()
             print(i)
@@ -148,6 +169,7 @@ def get_first_frame_of_swarm(num_boids):
         i += 1
     file_in.close()
     return -1
+
 
 if __name__ == "__main__":
     main()
