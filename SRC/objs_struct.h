@@ -1,3 +1,15 @@
+/**
+ * @file objs_struct.h
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu) 
+ * @brief Modifies the fields of an Object structure.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 objs_s *allocate_objects(int num_objs);
 void free_objects(objs_s *objs);
 

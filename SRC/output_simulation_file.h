@@ -1,4 +1,14 @@
-
+/**
+ * @file output_simulation_file.h
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu) 
+ * @brief Writes data describing a Boids simulation to a file.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 
 FILE* init_output_file_for_simulation(char *filename, int num_boids, int num_frames, parameters_s *parameters, int dim, int num_objs, int num_ATONs);
 void write_frame_to_output_file(FILE *f_p, boids_s *boids_p);

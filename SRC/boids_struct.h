@@ -1,3 +1,15 @@
+/**
+ * @file boids_struct.h
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu) 
+ * @brief Modifies the fields of a Boid struct. This includes ATONs.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 boids_s *allocate_boids(int num_boids);
 void free_boids(boids_s *boids);
 

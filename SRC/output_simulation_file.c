@@ -1,3 +1,15 @@
+/**
+ * @file output_simulation_file.c
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu) 
+ * @author Peter Jamieson (Jamiespa@miamioh.edu) 
+ * @brief Writes data describing a Boids simulation to a file.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "types.h"

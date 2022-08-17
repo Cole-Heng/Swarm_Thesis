@@ -1,7 +1,16 @@
-/*
+/**
+ * @file boids.c
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu)
+ * @brief Main code to run a Boids simulation.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
  * This is Peter Jamieson's attempt at implementing a C version of Boid's algorithm
  * - Started = Dec 7th, 2017
- *   */
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -127,6 +136,7 @@ int main(int argc, char *argv[])
 	/* Write objects to the file header */
 	write_objects_to_file(file_p, objs_p);
 
+	/* Write Aids TO Navigation to the file header */
 	write_atons_to_file(file_p, CMs, IDMs);
 
 	/* write initial state to the file */
@@ -140,7 +150,7 @@ int main(int argc, char *argv[])
 	/* execute a tick of simulation */
 	for (i = 0; i < num_frames; i++)
 	{
-		/* simulate the tick for conways */
+		/* simulate the tick for Boids */
 		simulate_a_frame(boids_p, &parameters, objs_p, i);
 
 		startw = clock();

@@ -1,6 +1,10 @@
 # Cole Hengstebeck, hengstcm@miamioh.edu
 # Script to run a number of boid simulations back-to-back and present cumulative
-# data about the simulations. When displaying analysis window, press "Q" to close
+# data about the simulations. When displaying analysis window, press "Q" to close.
+# version 1.0
+# date 2022-08-17
+#
+# copyright Copyright (c) 2022
 
 from genericpath import exists
 from re import T

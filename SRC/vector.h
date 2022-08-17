@@ -1,3 +1,15 @@
+/**
+ * @file vector.h
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu) 
+ * @brief Some specific vector arithmetic and manipulations.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 vector_s *allocate_vector();
 void free_vector(vector_s *vec);
 

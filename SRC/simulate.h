@@ -1,3 +1,13 @@
+/**
+ * @file simulate.h
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @brief Run a Boids simulation.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 
 void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs);
 void free_simulate();

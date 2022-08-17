@@ -1,3 +1,14 @@
+/**
+ * @file simulate.c
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @brief Run a Boids simulation.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

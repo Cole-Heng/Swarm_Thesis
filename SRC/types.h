@@ -1,3 +1,14 @@
+/**
+ * @file types.h
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu)
+ * @brief Type and structure defenitions and settings for Boids simulations
+ * @version 0.1
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ */
+
 #ifndef TRUE
 #define TRUE 1
 #endif

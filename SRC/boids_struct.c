@@ -1,3 +1,15 @@
+/**
+ * @file boids_struct.c
+ * @author Cole Hengstebeck (Hengstcm@miamioh.edu)
+ * @author Peter Jamieson (Jamiespa@miamioh.edu) 
+ * @brief Modifies the fields of a Boid struct. This includes ATONs.
+ * @version 1.0
+ * @date 2022-08-17
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
