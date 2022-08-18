@@ -98,11 +98,9 @@ To playback a log file to see the animation, Processing needs to be downloaded f
 
 ## Creating Initialization Files
 
-TODO
-
 ### File From Scratch
 
-To create a file from scratch, 3 sections must be written, the Header, the Boids, and the Objects. Each parameter is on a new line and there are no blank lines in the file. An example init file can be found at `./TESTING/test_init.txt`. The structure of parameters in the file is below and many of the definitions of the parameters can be found from commands in above sections. All values should be `int`s
+To create a file from scratch, 3 sections must be written, the Header, the Boids, and the Objects. Each parameter is on a new line and there are no blank lines in the file. An example init file can be found at `./TESTING/test_init.txt`. The structure of parameters in the file is below and many of the definitions of the parameters can be found from commands in above sections. All values should be `int`
 
 #### Header
 
@@ -115,8 +113,6 @@ To create a file from scratch, 3 sections must be written, the Header, the Boids
 - seperation_weight
 - alignment_weight
 - cohesion_weight
-- TODO
-- TODO
 
 #### Boids
 
@@ -137,7 +133,7 @@ Repeat the above parameters for every boid
 
 ### File Using Script
 
-Instead of writing by hand, `create_file_init.py` can make a basic initialization file with a few provided parameters. The script creates a grid of boids by the user providing the x and y coordinate of the top-left corner of the grid, the width and height of the grid in pixels, and the pixel seperation of the boids. The number of boids that can fit in the space is calculated and the positions for the Boids is writen to the file. A verticle wall of Objects can also be placed by specifying the x-cordinate of the wall. The wall will havea pre-generated hole for the Boids to move through. Lastly, a the x and y coordinates of a waypoint can be specified to generate one.
+Instead of writing by hand, `create_file_init.py` can make a basic initialization file with a few provided parameters. The script creates a grid of boids by the user providing the x and y coordinate of the top-left corner of the grid, the width and height of the grid in pixels, and the pixel seperation of the boids. The number of boids that can fit in the space is calculated and the positions for the Boids is writen to the file, all with random initial headings. A verticle wall of Objects can also be placed by specifying the x-cordinate of the wall. The wall will havea pre-generated hole for the Boids to move through. Lastly, a the x and y coordinates of a waypoint can be specified to generate one.
 
 ```bash
 cd ./TESTING

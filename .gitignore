@@ -15,5 +15,5 @@ TESTING/simulation_logs/*
 *.code-workspace
 /src/*.code-workspace
 /.vscode
-
+generated_file_init.txt
 
