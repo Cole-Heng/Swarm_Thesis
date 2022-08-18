@@ -10,9 +10,10 @@ install_manifest.txt
 boids_sim
 tags
 TESTING/boids_sim
-TESTING/test_*.txt
+TESTING/simulation_logs/*
 *.log
 *.code-workspace
 /src/*.code-workspace
 /.vscode
-*.txt
+
+
