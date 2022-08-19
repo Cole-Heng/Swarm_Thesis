@@ -40,6 +40,7 @@ void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs)
 		file_sim_stats = (FILE*)fopen("sim_statistics.log", "w");
 	#endif
 }
+
 void free_simulate()
 {
 	/* allocate data structure for neighbours */

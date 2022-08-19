@@ -149,16 +149,16 @@ short vectors_equal(vector_s *a, vector_s *b) {
 	return 0;
 }
 
-void normalize_vector(vector_s *to)
+void normalize_vector(vector_s *a)
 {
-	float length = length_vector(to);
+	float length = length_vector(a);
 
 	if (length != 0)
 	{
-		to->x = to->x / length;
-		to->y = to->y / length;
+		a->x = a->x / length;
+		a->y = a->y / length;
 #ifdef DIM_3D
-		to->z = to->z / length;
+		a->z = a->z / length;
 #endif
 	}
 }
