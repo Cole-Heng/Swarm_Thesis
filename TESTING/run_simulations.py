@@ -121,7 +121,7 @@ def main():
         axs[1, 1].axis('equal')
         axs[1, 1].set_title("Sum of all Boid Statuses (" + str(num_boids *
                                                                args.num_sims) + " Total Boids Simulated)")
-
+        fig.delaxes(axs[1, 2])
         plt.suptitle("Swarm Simulation Analysis. {} Simulations Run".format(
             args.num_sims), fontweight='bold')
         mng = plt.get_current_fig_manager()

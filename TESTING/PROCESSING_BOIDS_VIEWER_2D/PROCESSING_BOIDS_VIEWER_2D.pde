@@ -614,7 +614,10 @@ class Object
   {
     fill(obj_color);
     stroke(0);
-    circle(position.x, position.y, 2 * radius);
+    if (is_waypoint == 0) {
+      circle(position.x, position.y, 2 * radius);
+    } else {
+      square(position.x, position.y, 2 * radius);
   }
 }
 
