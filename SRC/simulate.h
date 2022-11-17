@@ -37,6 +37,8 @@ void free_simulate();
  */
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p, int frame_num);
 
+void CBF_solution(iboid_s *current_boid);
+
 /**
  * @brief Determine which boids from the whole set are within a Boid's field of
  * view

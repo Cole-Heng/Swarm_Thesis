@@ -12,14 +12,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include "types.h"
 #include "vector.h"
 #include "simulate.h"
 #include "boids_struct.h"
+#include "osqp/osqp.h"
+#include "osqp/glob_opts.h"
+#include "osqp/cs.h"
+
 
 boids_s *neighbours_p;
 boids_s *CMs; // Cardinal Marks (wall boids)
 boids_s *IDMs; // Isolated Danger Marks (Object boids)
+#define CBF_C 1
+#define CBF_DS 25 // can be update to be boids_desired_neighbor_distance
 #ifdef TRACK_SWARM
 	FILE *file_sim_stats;
 #endif
@@ -240,6 +247,8 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 
 		//printf("NEW VELOCITY boid[%d] - ", i); print_vector(boids_p->the_boids[i]->velocity);
 
+		CBF_solution(boids_p->the_boids[i]);
+
 		/* add the speed vector */
 		update_boid(boids_p->the_boids[i], parameters->dimension_size);
 		
@@ -267,6 +276,73 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 	#endif
 
 
+}
+
+void CBF_solution(iboid_s *current_boid) {
+	int num_neigh = neighbours_p->num_boids;
+	c_float P_x[2] = {1.0, 1.0};
+    c_int   P_nnz  = 2;
+    c_int   P_r[2] = { 0, 1};
+    c_int   P_c[3] = { 0, 1, 2};
+    c_float q[2]   = { current_boid->velocity->x, current_boid->velocity->y};
+    c_float A_x[num_neigh * 2];
+    c_int   A_nnz  = num_neigh * 2;
+    c_int   A_r[num_neigh * 2];
+    c_int   A_c[3] = {0, num_neigh, num_neigh * 2};
+    c_float l[num_neigh];
+	c_float u[num_neigh];
+	c_int n = 2;
+    c_int m = neighbours_p->num_boids;
+
+	for (int ii = 0; ii < num_neigh; ii++) {
+		A_x[ii] = (current_boid->position->x - neighbours_p->the_boids[ii]->position->x);
+		A_x[ii + num_neigh] = (current_boid->position->y - neighbours_p->the_boids[ii]->position->y);
+		A_r[ii] = ii;
+		A_r[ii + num_neigh] = ii;
+
+		float h = (pow(current_boid->position->x - neighbours_p->the_boids[ii]->position->x, 2) + 
+				   pow(current_boid->position->x - neighbours_p->the_boids[ii]->position->x, 2) - 
+				   CBF_DS);
+		l[ii] = -1 * CBF_C * h;
+
+		u[ii] = INT_MAX; // We don't have a true upper limit, so make it max
+	}
+    
+
+	// Exitflag
+	c_int exitflag = 0;
+
+  	// Workspace structures
+  	OSQPWorkspace *work;
+  	OSQPSettings  *settings = (OSQPSettings *)c_malloc(sizeof(OSQPSettings));
+  	OSQPData      *data     = (OSQPData *)c_malloc(sizeof(OSQPData));
+
+  	// Populate data
+  	if (data) {
+  	  data->n = n;
+  	  data->m = m;
+  	  data->P = csc_matrix(data->n, data->n, P_nnz, P_x, P_r, P_c);
+  	  data->q = q;
+  	  data->A = csc_matrix(data->m, data->n, A_nnz, A_x, A_r, A_c);
+  	  data->l = l;
+  	  data->u = u;
+  	}
+
+	// Define solver settings as default
+  	if (settings) osqp_set_default_settings(settings);
+	//settings->verbose = 0;
+
+  	// Setup workspace
+  	exitflag = osqp_setup(&work, data, settings);
+	if (exitflag != 0) {
+		printf("ERROR: Failed OSQP setup with flag %d\n", (int)exitflag);
+	}
+
+  	// Solve Problem
+  	osqp_solve(work);
+	current_boid->velocity->x = work->solution->x[0];
+	current_boid->velocity->y = work->solution->x[1];
+	normalize_vector(current_boid->velocity);
 }
 
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
