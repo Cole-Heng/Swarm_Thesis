@@ -25,8 +25,8 @@
 boids_s *neighbours_p;
 boids_s *CMs; // Cardinal Marks (wall boids)
 boids_s *IDMs; // Isolated Danger Marks (Object boids)
-#define CBF_C 1
-#define CBF_DS 25 // can be update to be boids_desired_neighbor_distance
+#define CBF_C .1
+#define CBF_DS 20 // can be update to be boids_desired_neighbor_distance
 #ifdef TRACK_SWARM
 	FILE *file_sim_stats;
 #endif
@@ -61,7 +61,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 
 	out = (FILE*)fopen("CM_coords.log", "w");
 
-	int num_boids_per_wall = parameters->dimension_size / (2 * parameters->boid_size_radius);
+	int num_boids_per_wall = parameters->dimension_size / (4 * parameters->boid_size_radius);
 	boids_s *CMs = allocate_boids(4 * num_boids_per_wall);
 
 	
@@ -72,7 +72,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->y = 0;
 	for (j = 0; j < num_boids_per_wall; j++) { //TL to BL
 		CMs->the_boids[j]->position->x = 0;
-		CMs->the_boids[j]->position->y = 2 * j * parameters->boid_size_radius;
+		CMs->the_boids[j]->position->y = 4 * j * parameters->boid_size_radius;
 		copy_vector(temp_vec, CMs->the_boids[j]->velocity);
 		CMs->the_boids[j]->life_status = DEAD;
 	}
@@ -81,7 +81,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->x = 0;
 	temp_vec->y = -1;
 	for (j = 0; j < num_boids_per_wall; j++) { //BL tp BR
-		CMs->the_boids[j + i]->position->x = 2 * j * parameters->boid_size_radius;
+		CMs->the_boids[j + i]->position->x = 4 * j * parameters->boid_size_radius;
 		CMs->the_boids[j + i]->position->y = parameters->dimension_size;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
@@ -92,7 +92,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->y = 0;
 	for (j = 0; j < num_boids_per_wall; j++) { //BR to TR
 		CMs->the_boids[j + i]->position->x = parameters->dimension_size;
-		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (4 * j * parameters->boid_size_radius);
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
 	}
@@ -102,7 +102,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->x = 0;
 	temp_vec->y = 1;
 	for (j = 0; j < num_boids_per_wall; j++) { //TR to TL
-		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (4 * j * parameters->boid_size_radius);
 		CMs->the_boids[j + i]->position->y = 0;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
@@ -246,8 +246,9 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 		normalize_vector(boids_p->the_boids[i]->velocity);
 
 		//printf("NEW VELOCITY boid[%d] - ", i); print_vector(boids_p->the_boids[i]->velocity);
-
+		#ifdef USE_CBF
 		CBF_solution(boids_p->the_boids[i]);
+		#endif
 
 		/* add the speed vector */
 		update_boid(boids_p->the_boids[i], parameters->dimension_size);
@@ -279,12 +280,19 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 }
 
 void CBF_solution(iboid_s *current_boid) {
+	// Boid has no neighbors, so skip CBF calculation
+	if (neighbours_p->num_boids == 0) {
+		return;
+	}
+	printf("=====boid position, %f, %f\n", current_boid->position->x, current_boid->position->y);
+	// printf("neigbor num and pos, %d, %f, %f\n", neighbours_p->num_boids, neighbours_p->the_boids[0]->position->x, neighbours_p->the_boids[0]->position->y);
+	// printf("boids_solution x,y: %f, %f\n", current_boid->velocity->x, current_boid->velocity->y);
 	int num_neigh = neighbours_p->num_boids;
 	c_float P_x[2] = {1.0, 1.0};
     c_int   P_nnz  = 2;
     c_int   P_r[2] = { 0, 1};
     c_int   P_c[3] = { 0, 1, 2};
-    c_float q[2]   = { current_boid->velocity->x, current_boid->velocity->y};
+    c_float q[2]   = { -1 * current_boid->velocity->x, -1 * current_boid->velocity->y};
     c_float A_x[num_neigh * 2];
     c_int   A_nnz  = num_neigh * 2;
     c_int   A_r[num_neigh * 2];
@@ -301,13 +309,18 @@ void CBF_solution(iboid_s *current_boid) {
 		A_r[ii + num_neigh] = ii;
 
 		float h = (pow(current_boid->position->x - neighbours_p->the_boids[ii]->position->x, 2) + 
-				   pow(current_boid->position->x - neighbours_p->the_boids[ii]->position->x, 2) - 
-				   CBF_DS);
+				   pow(current_boid->position->y - neighbours_p->the_boids[ii]->position->y, 2) - 
+				   (CBF_DS * CBF_DS));
 		l[ii] = -1 * CBF_C * h;
 
 		u[ii] = INT_MAX; // We don't have a true upper limit, so make it max
 	}
-    
+	// printf("%f, %f\n", current_boid->position->x - neighbours_p->the_boids[0]->position->x, current_boid->position->y - neighbours_p->the_boids[0]->position->y);
+	// printf("Vals[%f, %f]\n", A_x[0], A_x[0 + num_neigh]);
+	// printf("Cols[%d, %d, %d]\n", A_c[0], A_c[1], A_c[2]);
+	// printf("Rows[%d, %d]\n", A_r[0], A_r[1]);
+	// printf("l, u %f, %f\n", l[0], u[0]);
+
 
 	// Exitflag
 	c_int exitflag = 0;
@@ -330,7 +343,7 @@ void CBF_solution(iboid_s *current_boid) {
 
 	// Define solver settings as default
   	if (settings) osqp_set_default_settings(settings);
-	//settings->verbose = 0;
+	settings->verbose = 0;
 
   	// Setup workspace
   	exitflag = osqp_setup(&work, data, settings);
@@ -340,9 +353,22 @@ void CBF_solution(iboid_s *current_boid) {
 
   	// Solve Problem
   	osqp_solve(work);
+	printf("CBF   [%f, %f]\n", work->solution->x[0], work->solution->x[1]);
+	printf("Boids [%f, %f]\n", current_boid->velocity->x, current_boid->velocity->y);
+	
+
+	
+	if ((abs(work->solution->x[0] - current_boid->velocity->x) >= .00001) || (abs(work->solution->x[1] - current_boid->velocity->y) >= .00001)) {
+		printf("~~~~~~~~~~DIFFERENCE~~~~~~~~~~~\n");
+	}
+	// The CBF solution comes out wrongly negative/positive for some reason, so
+	// make it correcty positive/negative
 	current_boid->velocity->x = work->solution->x[0];
 	current_boid->velocity->y = work->solution->x[1];
 	normalize_vector(current_boid->velocity);
+	
+	printf("Norm  [%f, %f]\n", current_boid->velocity->x, current_boid->velocity->y);
+
 }
 
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
