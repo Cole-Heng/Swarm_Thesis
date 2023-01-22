@@ -209,7 +209,6 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p, int frame_num)
 {
 	int i;
-	printf("~~~~~%d~~~~~\n", frame_num);
 
 	vector_s velocity_change_from_rules[3];
 
@@ -246,7 +245,6 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 		/* normalize to keep to 1 or less */
 		normalize_vector(boids_p->the_boids[i]->velocity);
 
-		//printf("NEW VELOCITY boid[%d] - ", i); print_vector(boids_p->the_boids[i]->velocity);
 		#ifdef USE_CBF
 		CBF_solution(boids_p->the_boids[i]);
 		#endif
@@ -285,9 +283,6 @@ void CBF_solution(iboid_s *current_boid) {
 	if (neighbours_p->num_boids == 0) {
 		return;
 	}
-	// printf("=====boid position, %f, %f\n", current_boid->position->x, current_boid->position->y);
-	// printf("neigbor num and pos, %d, %f, %f\n", neighbours_p->num_boids, neighbours_p->the_boids[0]->position->x, neighbours_p->the_boids[0]->position->y);
-	// printf("boids_solution x,y: %f, %f\n", current_boid->velocity->x, current_boid->velocity->y);
 	int num_neigh = neighbours_p->num_boids;
 	c_float P_x[2] = {1.0, 1.0};
     c_int   P_nnz  = 2;
@@ -316,12 +311,6 @@ void CBF_solution(iboid_s *current_boid) {
 
 		u[ii] = INT_MAX; // We don't have a true upper limit, so make it max
 	}
-	// printf("%f, %f\n", current_boid->position->x - neighbours_p->the_boids[0]->position->x, current_boid->position->y - neighbours_p->the_boids[0]->position->y);
-	// printf("Vals[%f, %f]\n", A_x[0], A_x[0 + num_neigh]);
-	// printf("Cols[%d, %d, %d]\n", A_c[0], A_c[1], A_c[2]);
-	// printf("Rows[%d, %d]\n", A_r[0], A_r[1]);
-	// printf("l, u %f, %f\n", l[0], u[0]);
-
 
 	// Exitflag
 	c_int exitflag = 0;
@@ -367,15 +356,6 @@ void CBF_solution(iboid_s *current_boid) {
 	current_boid->velocity->x = work->solution->x[0];
 	current_boid->velocity->y = work->solution->x[1];
 	normalize_vector(current_boid->velocity);
-	//if ((abs(work->solution->x[0] - temp_x) >= .00001) || (abs(work->solution->x[1] - temp_y) >= .00001)) {
-		//printf("~~~~~~~~~~DIFFERENCE~~~~~~~~~~~\n");
-		printf("boid position, %f, %f\n", current_boid->position->x, current_boid->position->y);
-		printf("CBF   [%f, %f]\n", work->solution->x[0], work->solution->x[1]);
-		printf("Boids [%f, %f]\n", temp_x, temp_y);
-		printf("Norm  [%f, %f]\n", current_boid->velocity->x, current_boid->velocity->y);
-	//}
-	
-
 }
 
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
