@@ -344,6 +344,11 @@ void CBF_solution(iboid_s *current_boid) {
 	// Define solver settings as default
   	if (settings) osqp_set_default_settings(settings);
 	settings->verbose = 0;
+	settings->polish = 1;
+	settings->eps_abs = 1E-12;
+	settings->eps_rel = 1E-12;
+	settings->eps_prim_inf = 1E-12;
+	settings->eps_dual_inf = 1E-12;
 
   	// Setup workspace
   	exitflag = osqp_setup(&work, data, settings);
