@@ -12,14 +12,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include "types.h"
 #include "vector.h"
 #include "simulate.h"
 #include "boids_struct.h"
+#include "osqp/osqp.h"
+#include "osqp/glob_opts.h"
+#include "osqp/cs.h"
+
 
 boids_s *neighbours_p;
 boids_s *CMs; // Cardinal Marks (wall boids)
 boids_s *IDMs; // Isolated Danger Marks (Object boids)
+#define CBF_C .1
+#define CBF_DS 20 // can be update to be boids_desired_neighbor_distance
 #ifdef TRACK_SWARM
 	FILE *file_sim_stats;
 #endif
@@ -54,7 +61,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 
 	out = (FILE*)fopen("CM_coords.log", "w");
 
-	int num_boids_per_wall = parameters->dimension_size / (2 * parameters->boid_size_radius);
+	int num_boids_per_wall = parameters->dimension_size / (4 * parameters->boid_size_radius);
 	boids_s *CMs = allocate_boids(4 * num_boids_per_wall);
 
 	
@@ -65,7 +72,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->y = 0;
 	for (j = 0; j < num_boids_per_wall; j++) { //TL to BL
 		CMs->the_boids[j]->position->x = 0;
-		CMs->the_boids[j]->position->y = 2 * j * parameters->boid_size_radius;
+		CMs->the_boids[j]->position->y = 4 * j * parameters->boid_size_radius;
 		copy_vector(temp_vec, CMs->the_boids[j]->velocity);
 		CMs->the_boids[j]->life_status = DEAD;
 	}
@@ -74,7 +81,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->x = 0;
 	temp_vec->y = -1;
 	for (j = 0; j < num_boids_per_wall; j++) { //BL tp BR
-		CMs->the_boids[j + i]->position->x = 2 * j * parameters->boid_size_radius;
+		CMs->the_boids[j + i]->position->x = 4 * j * parameters->boid_size_radius;
 		CMs->the_boids[j + i]->position->y = parameters->dimension_size;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
@@ -85,7 +92,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->y = 0;
 	for (j = 0; j < num_boids_per_wall; j++) { //BR to TR
 		CMs->the_boids[j + i]->position->x = parameters->dimension_size;
-		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (4 * j * parameters->boid_size_radius);
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
 	}
@@ -95,7 +102,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->x = 0;
 	temp_vec->y = 1;
 	for (j = 0; j < num_boids_per_wall; j++) { //TR to TL
-		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (2 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (4 * j * parameters->boid_size_radius);
 		CMs->the_boids[j + i]->position->y = 0;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
@@ -238,7 +245,9 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 		/* normalize to keep to 1 or less */
 		normalize_vector(boids_p->the_boids[i]->velocity);
 
-		//printf("NEW VELOCITY boid[%d] - ", i); print_vector(boids_p->the_boids[i]->velocity);
+		#ifdef USE_CBF
+		CBF_solution(boids_p->the_boids[i]);
+		#endif
 
 		/* add the speed vector */
 		update_boid(boids_p->the_boids[i], parameters->dimension_size);
@@ -267,6 +276,86 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 	#endif
 
 
+}
+
+void CBF_solution(iboid_s *current_boid) {
+	// Boid has no neighbors, so skip CBF calculation
+	if (neighbours_p->num_boids == 0) {
+		return;
+	}
+	int num_neigh = neighbours_p->num_boids;
+	c_float P_x[2] = {1.0, 1.0};
+    c_int   P_nnz  = 2;
+    c_int   P_r[2] = { 0, 1};
+    c_int   P_c[3] = { 0, 1, 2};
+    c_float q[2]   = { -1 * current_boid->velocity->x, -1 * current_boid->velocity->y};
+    c_float A_x[num_neigh * 2];
+    c_int   A_nnz  = num_neigh * 2;
+    c_int   A_r[num_neigh * 2];
+    c_int   A_c[3] = {0, num_neigh, num_neigh * 2};
+    c_float l[num_neigh];
+	c_float u[num_neigh];
+	c_int n = 2;
+    c_int m = neighbours_p->num_boids;
+
+	for (int ii = 0; ii < num_neigh; ii++) {
+		A_x[ii] = (current_boid->position->x - neighbours_p->the_boids[ii]->position->x);
+		A_x[ii + num_neigh] = (current_boid->position->y - neighbours_p->the_boids[ii]->position->y);
+		A_r[ii] = ii;
+		A_r[ii + num_neigh] = ii;
+
+		float h = (pow(current_boid->position->x - neighbours_p->the_boids[ii]->position->x, 2) + 
+				   pow(current_boid->position->y - neighbours_p->the_boids[ii]->position->y, 2) - 
+				   (CBF_DS * CBF_DS));
+		l[ii] = -1 * CBF_C * h;
+
+		u[ii] = INT_MAX; // We don't have a true upper limit, so make it max
+	}
+
+	// Exitflag
+	c_int exitflag = 0;
+
+  	// Workspace structures
+  	OSQPWorkspace *work;
+  	OSQPSettings  *settings = (OSQPSettings *)c_malloc(sizeof(OSQPSettings));
+  	OSQPData      *data     = (OSQPData *)c_malloc(sizeof(OSQPData));
+
+  	// Populate data
+  	if (data) {
+  	  data->n = n;
+  	  data->m = m;
+  	  data->P = csc_matrix(data->n, data->n, P_nnz, P_x, P_r, P_c);
+  	  data->q = q;
+  	  data->A = csc_matrix(data->m, data->n, A_nnz, A_x, A_r, A_c);
+  	  data->l = l;
+  	  data->u = u;
+  	}
+
+	// Define solver settings as default
+  	if (settings) osqp_set_default_settings(settings);
+	settings->verbose = 0;
+	settings->polish = 1;
+	settings->eps_abs = 1E-12;
+	settings->eps_rel = 1E-12;
+	settings->eps_prim_inf = 1E-12;
+	settings->eps_dual_inf = 1E-12;
+
+  	// Setup workspace
+  	exitflag = osqp_setup(&work, data, settings);
+	if (exitflag != 0) {
+		printf("ERROR: Failed OSQP setup with flag %d\n", (int)exitflag);
+	}
+
+  	// Solve Problem
+  	osqp_solve(work);
+	
+	// The CBF solution comes out wrongly negative/positive for some reason, so
+	// make it correcty positive/negative
+	float temp_x = current_boid->velocity->x;
+	float temp_y = current_boid->velocity->y;
+	current_boid->velocity->x = work->solution->x[0];
+	current_boid->velocity->y = work->solution->x[1];
+	normalize_vector(current_boid->velocity);
 }
 
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)

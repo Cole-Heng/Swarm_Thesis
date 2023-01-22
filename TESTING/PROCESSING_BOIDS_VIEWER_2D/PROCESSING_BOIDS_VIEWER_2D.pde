@@ -618,6 +618,7 @@ class Object
       circle(position.x, position.y, 2 * radius);
     } else {
       square(position.x, position.y, 2 * radius);
+    }
   }
 }
 

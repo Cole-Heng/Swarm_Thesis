@@ -21,6 +21,10 @@ add_executable(boids_sim ${EXEC_SOURCES} ${EXEC_HEADERS})
 
 target_link_libraries(boids_sim m)
 
+find_library(LIBOSQP NAMES libosqp osqp HINTS OSQP_FOLDER/osqp /usr/local/lib)
+
+target_link_libraries(boids_sim ${LIBOSQP})
+
 find_program(CTAGS ctags)
 # CTAGs
 if(CTAGS)
