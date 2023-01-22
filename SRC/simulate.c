@@ -209,6 +209,7 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p, int frame_num)
 {
 	int i;
+	printf("~~~~~%d~~~~~\n", frame_num);
 
 	vector_s velocity_change_from_rules[3];
 
@@ -284,7 +285,7 @@ void CBF_solution(iboid_s *current_boid) {
 	if (neighbours_p->num_boids == 0) {
 		return;
 	}
-	printf("=====boid position, %f, %f\n", current_boid->position->x, current_boid->position->y);
+	// printf("=====boid position, %f, %f\n", current_boid->position->x, current_boid->position->y);
 	// printf("neigbor num and pos, %d, %f, %f\n", neighbours_p->num_boids, neighbours_p->the_boids[0]->position->x, neighbours_p->the_boids[0]->position->y);
 	// printf("boids_solution x,y: %f, %f\n", current_boid->velocity->x, current_boid->velocity->y);
 	int num_neigh = neighbours_p->num_boids;
@@ -358,21 +359,22 @@ void CBF_solution(iboid_s *current_boid) {
 
   	// Solve Problem
   	osqp_solve(work);
-	printf("CBF   [%f, %f]\n", work->solution->x[0], work->solution->x[1]);
-	printf("Boids [%f, %f]\n", current_boid->velocity->x, current_boid->velocity->y);
 	
-
-	
-	if ((abs(work->solution->x[0] - current_boid->velocity->x) >= .00001) || (abs(work->solution->x[1] - current_boid->velocity->y) >= .00001)) {
-		printf("~~~~~~~~~~DIFFERENCE~~~~~~~~~~~\n");
-	}
 	// The CBF solution comes out wrongly negative/positive for some reason, so
 	// make it correcty positive/negative
+	float temp_x = current_boid->velocity->x;
+	float temp_y = current_boid->velocity->y;
 	current_boid->velocity->x = work->solution->x[0];
 	current_boid->velocity->y = work->solution->x[1];
 	normalize_vector(current_boid->velocity);
+	//if ((abs(work->solution->x[0] - temp_x) >= .00001) || (abs(work->solution->x[1] - temp_y) >= .00001)) {
+		//printf("~~~~~~~~~~DIFFERENCE~~~~~~~~~~~\n");
+		printf("boid position, %f, %f\n", current_boid->position->x, current_boid->position->y);
+		printf("CBF   [%f, %f]\n", work->solution->x[0], work->solution->x[1]);
+		printf("Boids [%f, %f]\n", temp_x, temp_y);
+		printf("Norm  [%f, %f]\n", current_boid->velocity->x, current_boid->velocity->y);
+	//}
 	
-	printf("Norm  [%f, %f]\n", current_boid->velocity->x, current_boid->velocity->y);
 
 }
 
