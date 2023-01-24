@@ -27,9 +27,8 @@ boids_s *CMs; // Cardinal Marks (wall boids)
 boids_s *IDMs; // Isolated Danger Marks (Object boids)
 #define CBF_C .1
 #define CBF_DS 20 // can be update to be boids_desired_neighbor_distance
-#ifdef TRACK_SWARM
-	FILE *file_sim_stats;
-#endif
+FILE *file_sim_stats;
+int** heatmap; // heatmap of points that boids visit and explore in the form [y][x]
 short full_swarm = FALSE;
 
 // PROTOTYPES
@@ -43,9 +42,11 @@ void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs)
 	CMs = create_cardinal_marks(parameters);
 	IDMs = create_isolated_danger_marks(objs);
 	neighbours_p = allocate_boids(boids_p->num_boids + CMs->num_boids);
-	#ifdef TRACK_SWARM
-		file_sim_stats = (FILE*)fopen("sim_statistics.log", "w");
-	#endif
+	file_sim_stats = (FILE*)fopen("sim_statistics.log", "w");
+	heatmap = (int**)malloc(parameters->dimension_size * sizeof(int*));
+	for (int i = 0; i < parameters->dimension_size; i++) {
+		heatmap[i] = (int*)malloc(parameters->dimension_size * sizeof(int));
+	}
 }
 
 void free_simulate()
@@ -251,7 +252,10 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 
 		/* add the speed vector */
 		update_boid(boids_p->the_boids[i], parameters->dimension_size);
-		
+
+		// add one to the location heatmap. Round boid coordinates down to an
+		// int
+		heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)]++;
 		#ifdef TRACK_DEATH
 		check_collision(boids_p->the_boids[i], neighbours_p, parameters, objs_p);
 		#endif
@@ -349,10 +353,6 @@ void CBF_solution(iboid_s *current_boid) {
   	// Solve Problem
   	osqp_solve(work);
 	
-	// The CBF solution comes out wrongly negative/positive for some reason, so
-	// make it correcty positive/negative
-	float temp_x = current_boid->velocity->x;
-	float temp_y = current_boid->velocity->y;
 	current_boid->velocity->x = work->solution->x[0];
 	current_boid->velocity->y = work->solution->x[1];
 	normalize_vector(current_boid->velocity);
@@ -641,7 +641,7 @@ void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radiu
 	}
 }
 
-void output_simulation_final_stats(boids_s *boids_p) {
+void output_simulation_final_stats(boids_s *boids_p, int dim) {
 	int success_and_alive = 0;
 	int success_and_dead = 0;
 	int fail_and_alive = 0;
@@ -665,6 +665,16 @@ void output_simulation_final_stats(boids_s *boids_p) {
 	fprintf(file_sim_stats, "success_and_dead: %d\n", success_and_dead);
 	fprintf(file_sim_stats, "fail_and_alive: %d\n", fail_and_alive);
 	fprintf(file_sim_stats, "fail_and_dead: %d\n", fail_and_dead);
+	fprintf(file_sim_stats, "Heatmap:\n");
+	for (int i = 0; i < dim; i++) {
+		for (int j = 0; j < dim; j++) {
+			fprintf(file_sim_stats, "%d", heatmap[i][j]);
+			if (j != dim - 1) {
+				fprintf(file_sim_stats, ",");
+			}
+		}
+		fprintf(file_sim_stats, "\n");
+	}
 
 	fflush(file_sim_stats);
 	fclose(file_sim_stats);

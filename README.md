@@ -32,8 +32,9 @@ Each of these rules has a weight assigned to it to influence the behavior of the
 ## Building
 
 
-To select between simulating in 2D or 3D,
-modify lines 16 and 17 of `./SRC/types.h`
+To select between simulating using Control Barrier Functions or not,
+modify `./SRC/types.h` to define `USE_CBF`.
+
 
 Run the following in the main directory
 

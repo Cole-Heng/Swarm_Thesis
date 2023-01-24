@@ -175,5 +175,6 @@ void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radiu
  * @brief Write final statistics of the simulation to the terminal
  * 
  * @param boids_p The set of all Boids
+ * @param dim The x/y dimension of the simulation field
  */
-void output_simulation_final_stats(boids_s *boids_p);
+void output_simulation_final_stats(boids_s *boids_p, int dim);

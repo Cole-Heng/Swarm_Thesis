@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 		timew += (double)(stopw - startw) * 1000.0 / CLOCKS_PER_SEC;
 	}
 
-	output_simulation_final_stats(boids_p);
+	output_simulation_final_stats(boids_p, parameters.dimension_size);
 
 	// TIMING
 	clock_t stop = clock();

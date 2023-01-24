@@ -42,16 +42,36 @@
 
 #define SHARE_GOAL //leaders share leader status with boids they are near to
 
-#define TRACK_SWARM // track frames that the swarm contrains all boids
+// #define TRACK_SWARM // record if the swarm fully connects/breaks
 
-#define AVOID_SUCCESS // define if boids should avoid other boids that have reached the waypoint (usually leave undefined)
+#define AVOID_SUCCESS // define if boids should avoid other boids that have reached the waypoint 
 
 #define USE_CBF // define if a CBF solution should be calculated and used, or if boids solution alone should be used
-// #define ATONS
 
 #ifndef TYPES_H
 #define TYPES_H
 
+/**
+ * @brief Return the maximum of two integers
+ * 
+ * @param a 
+ * @param b 
+ * @return int 
+ */
+static inline int imax(int a, int b) {
+	return (a >= b) ? a : b;
+}
+
+/**
+ * @brief Return the minimum of two integers
+ * 
+ * @param a 
+ * @param b 
+ * @return int 
+ */
+static inline int imin(int a, int b) {
+	return (a <= b) ? a : b;
+}
 
 /* A boid */
 typedef struct vector_s_s vector_s;
@@ -125,7 +145,6 @@ struct quad_s
 {
 	vector_s points[4];
 };
-#endif // TYPES_H
 
 /* An object */
 typedef struct obj_s_s obj_s;
@@ -145,3 +164,4 @@ struct objs_s_s
 	obj_s **the_objs;
 	int num_objs;
 };
+#endif // TYPES_H

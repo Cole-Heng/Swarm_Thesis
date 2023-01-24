@@ -42,6 +42,7 @@ def main():
     success_and_dead = [0] * args.num_sims
     fail_and_alive = [0] * args.num_sims
     fail_and_dead = [0] * args.num_sims
+    heatmap = np.zeros((600, 600))
 
     # Make a dir to save all simulation logs
     if not os.path.exists("./simulation_logs/"):
@@ -60,6 +61,10 @@ def main():
             success_and_dead[i] = int(stats[3])
             fail_and_alive[i] = int(stats[4])
             fail_and_dead[i] = int(stats[5])
+            heatFile = open("sim_statistics.log")
+            tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=5)
+            heatmap = heatmap + tempHeat
+            heatFile.close()
             sleep(0.1)
     else:
         for i in range(args.num_sims):
@@ -73,6 +78,10 @@ def main():
             success_and_dead[i] = int(stats[3])
             fail_and_alive[i] = int(stats[4])
             fail_and_dead[i] = int(stats[5])
+            heatFile = open("sim_statistics.log")
+            tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=5)
+            heatmap = heatmap + tempHeat
+            heatFile.close()
             sleep(0.1)
 
     # Display all analysis plots
@@ -128,6 +137,9 @@ def main():
         mng.full_screen_toggle()
         plt.show()
 
+        plt.imshow(heatmap, cmap='hot', interpolation='none')
+        plt.show()
+
 
 def parse_sim_stats():
     swarm_achieved = 0
@@ -157,6 +169,8 @@ def parse_sim_stats():
             fail_and_alive = temp[1]
         elif (temp[0] == "fail_and_dead:"):
             fail_and_dead = temp[1]
+        elif (temp[0] == "Heatmap:"):
+            break
         else:
             print("WARNING: Unknown line read from simulation stats log:")
             print(temp[0])
