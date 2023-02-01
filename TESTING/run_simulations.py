@@ -10,7 +10,7 @@ from genericpath import exists
 from re import T
 from sre_constants import SUCCESS
 import sys
-from subprocess import call
+from subprocess import run
 import numpy as np
 import matplotlib.pyplot as plt
 from time import sleep
@@ -42,17 +42,26 @@ def main():
     success_and_dead = [0] * args.num_sims
     fail_and_alive = [0] * args.num_sims
     fail_and_dead = [0] * args.num_sims
-    heatmap = np.zeros((600, 600))
+    success_frame = [0] * args.num_sims
+    elapsed_time = [0] * args.num_sims
+    heatmap = np.zeros((1000, 1000))
 
-    # Make a dir to save all simulation logs
+    # Make a dir to save all simulation logs and clear it
+    run(["rm", "-r", "./simulation_logs/"])
     if not os.path.exists("./simulation_logs/"):
         os.mkdir("simulation_logs")
+
+    run(["cp", args.init_file, "../" + args.init_file])
 
     # Run simulations with or without saving all the log files
     if args.log_all:
         for i in range(args.num_sims):
-            call(["../boids_sim", "FILE_INIT",
-                 str(args.init_file), "./simulation_logs/sim_out{}.log".format(i)])
+            # call_out = "../boids_sim FILE_INIT " + \
+            #     str(args.init_file) + \
+            #     " ./simulation_logs/sim_out{}.log {}".format(i, i)
+            # print("Calling: " + call_out)
+            run(["../boids_sim", "FILE_INIT",
+                str(args.init_file), "./simulation_logs/sim_out{}.log".format(i), "{}".format(i)])
             sleep(0.1)
             stats = parse_sim_stats()
             swarm_achieved[i] = int(stats[0])
@@ -61,15 +70,23 @@ def main():
             success_and_dead[i] = int(stats[3])
             fail_and_alive[i] = int(stats[4])
             fail_and_dead[i] = int(stats[5])
-            heatFile = open("sim_statistics.log")
-            tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=5)
+            success_frame[i] = int(stats[6])
+            elapsed_time[i] = float(stats[7])
+            heatFile = open("./sim_statistics.log")
+            tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=7)
             heatmap = heatmap + tempHeat
             heatFile.close()
+            run(["cp", "./sim_statistics.log",
+                "./simulation_logs/sim_statistics{}.log".format(i)])
             sleep(0.1)
     else:
         for i in range(args.num_sims):
-            call(["../boids_sim", "FILE_INIT",
-                 str(args.init_file), "./simulation_logs/sim_out.log"])
+            # call_out = "../boids_sim FILE_INIT " + \
+            #     str(args.init_file) + \
+            #     " ./simulation_logs/sim_out.log {}".format(i)
+            # print("Calling: " + call_out)
+            run(["../boids_sim", "FILE_INIT",
+                 str(args.init_file), "./simulation_logs/sim_out.log {}".format(i)])
             sleep(0.1)
             stats = parse_sim_stats()
             swarm_achieved[i] = int(stats[0])
@@ -78,7 +95,9 @@ def main():
             success_and_dead[i] = int(stats[3])
             fail_and_alive[i] = int(stats[4])
             fail_and_dead[i] = int(stats[5])
-            heatFile = open("sim_statistics.log")
+            success_frame[i] = int(stats[6])
+            elapsed_time[i] = float(stats[7])
+            heatFile = open("./sim_statistics.log")
             tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=5)
             heatmap = heatmap + tempHeat
             heatFile.close()
@@ -104,17 +123,24 @@ def main():
                       autopct="%1.1f%%", shadow=True, startangle=90)
         axs[0, 0].set_title("Swarm Statuses")
 
-        num_success = success_and_alive + success_and_dead
+        num_success = [success_and_alive[x] + success_and_dead[x]
+                       for x in range(len(success_and_alive))]
         axs[0, 1].hist(num_success)
         axs[0, 1].set_title("Number of Successful Boids")
         axs[0, 1].set_xlabel("Number of Boids (out of " + str(num_boids) + ")")
         axs[0, 1].set_ylabel("Number of Simulations")
 
-        num_alive = success_and_alive + fail_and_alive
+        num_alive = [success_and_alive[x] + fail_and_alive[x]
+                     for x in range(len(success_and_alive))]
         axs[0, 2].hist(num_alive)
         axs[0, 2].set_title("Number of Boids Alive")
         axs[0, 2].set_xlabel("Number of Boids (out of " + str(num_boids) + ")")
         axs[0, 2].set_ylabel("Number of Simulations")
+
+        # axs[1, 0].hist(swarm_achieved, 20)
+        # axs[1, 0].set_title("Frame swarm was achieved")
+        # axs[1, 0].set_xlabel("Frame Number (-1 = never)")
+        # axs[1, 0].set_ylabel("Number of Simulations")
 
         axs[1, 0].hist(swarm_achieved, 20)
         axs[1, 0].set_title("Frame swarm was achieved")
@@ -130,7 +156,12 @@ def main():
         axs[1, 1].axis('equal')
         axs[1, 1].set_title("Sum of all Boid Statuses (" + str(num_boids *
                                                                args.num_sims) + " Total Boids Simulated)")
-        fig.delaxes(axs[1, 2])
+
+        axs[1, 2].plot(elapsed_time)
+        axs[1, 2].set_title("Elapsed time")
+        axs[1, 2].set_xlabel("Sim number\nAvg: " + str(np.mean(elapsed_time)))
+        axs[1, 2].set_ylabel("Time (s)")
+
         plt.suptitle("Swarm Simulation Analysis. {} Simulations Run".format(
             args.num_sims), fontweight='bold')
         mng = plt.get_current_fig_manager()
@@ -150,8 +181,10 @@ def parse_sim_stats():
     fail_and_dead = 0
     num_success = 0
     num_alive = 0
+    success_frame = 0
+    elapsed_time = 0
     achieved_set = False
-    file_in = open("sim_statistics.log", "r")
+    file_in = open("./sim_statistics.log", "r")
     line = file_in.readline()
     while (line):
         temp = line.split()
@@ -169,6 +202,10 @@ def parse_sim_stats():
             fail_and_alive = temp[1]
         elif (temp[0] == "fail_and_dead:"):
             fail_and_dead = temp[1]
+        elif (temp[0] == "success_frame:"):
+            success_frame = temp[1]
+        elif (temp[0] == "elapsed_time:"):
+            elapsed_time = temp[1]
         elif (temp[0] == "Heatmap:"):
             break
         else:
@@ -180,7 +217,7 @@ def parse_sim_stats():
     if (achieved_set == False):
         swarm_achieved = -1
     file_in.close()
-    return [swarm_achieved, swarm_broke, success_and_alive, success_and_dead, fail_and_alive, fail_and_dead]
+    return [swarm_achieved, swarm_broke, success_and_alive, success_and_dead, fail_and_alive, fail_and_dead, success_frame, elapsed_time]
 
 
 if __name__ == "__main__":
