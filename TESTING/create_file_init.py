@@ -22,8 +22,8 @@ def main():
 
     # headers
     out.write(str(num_boids) + "\n")
-    out.write(str(2000) + "\n")  # num frames
-    out.write(str(600) + "\n")  # dim size
+    out.write(str(5000) + "\n")  # num frames
+    out.write(str(1000) + "\n")  # dim size
     out.write(str(2) + "\n")  # dimensions
     out.write(str(75) + "\n")  # neighbor view rad
     out.write(str(25) + "\n")  # neighbor seperation
@@ -48,15 +48,15 @@ def main():
         i += seperation
 
     # objects
-    out.write(str(27) + "\n")
-    for i in range(13):
+    out.write(str(35) + "\n")
+    for i in range(17):
         out.write(str(x_wall) + "\n")
         out.write(str(10 + i * 20) + "\n")
         out.write(str(10) + "\n")
         out.write(str(0) + "\n")
-    for i in range(13):
+    for i in range(17):
         out.write(str(x_wall) + "\n")
-        out.write(str(600 - 10 - i * 20) + "\n")
+        out.write(str(1000 - 10 - i * 20) + "\n")
         out.write(str(10) + "\n")
         out.write(str(0) + "\n")
     out.write(str(x_target) + "\n")
