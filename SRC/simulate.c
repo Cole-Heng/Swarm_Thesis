@@ -30,6 +30,7 @@ boids_s *IDMs; // Isolated Danger Marks (Object boids)
 FILE *file_sim_stats;
 int** heatmap; // heatmap of points that boids visit and explore in the form [y][x]
 short full_swarm = FALSE;
+int success_frame = -1;
 
 // PROTOTYPES
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight);
@@ -209,11 +210,9 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
  */
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p, int frame_num)
 {
-	int i;
-
 	vector_s velocity_change_from_rules[3];
 
-	for (i = 0; i < boids_p->num_boids; i++)
+	for (int i = 0; i < boids_p->num_boids; i++)
 	{
 		#ifdef ENFORCE_DEATH
 			if (boids_p->the_boids[i]->life_status == DEAD)
@@ -259,6 +258,19 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 		#ifdef TRACK_DEATH
 		check_collision(boids_p->the_boids[i], neighbours_p, parameters, objs_p);
 		#endif
+	}
+
+	if (success_frame == -1) {
+		// Check if all alive boids have reached the waypoint. If so, mark what
+		// frame this was achieved.
+		success_frame = frame_num;
+		for (int i = 0; i < boids_p->num_boids; i++)
+		{
+			if (boids_p->the_boids[i]->life_status == ALIVE && boids_p->the_boids[i]->success == FALSE) {
+				success_frame = -1;
+				break;
+			}
+		}
 	}
 
 	#ifdef TRACK_SWARM
@@ -641,7 +653,7 @@ void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radiu
 	}
 }
 
-void output_simulation_final_stats(boids_s *boids_p, int dim) {
+void output_simulation_final_stats(boids_s *boids_p, int dim, double elapsed) {
 	int success_and_alive = 0;
 	int success_and_dead = 0;
 	int fail_and_alive = 0;
@@ -665,6 +677,8 @@ void output_simulation_final_stats(boids_s *boids_p, int dim) {
 	fprintf(file_sim_stats, "success_and_dead: %d\n", success_and_dead);
 	fprintf(file_sim_stats, "fail_and_alive: %d\n", fail_and_alive);
 	fprintf(file_sim_stats, "fail_and_dead: %d\n", fail_and_dead);
+	fprintf(file_sim_stats, "Success_frame: %d\n", success_frame);
+	fprintf(file_sim_stats, "Elapsed_time: %f\n", elapsed);
 	fprintf(file_sim_stats, "Heatmap:\n");
 	for (int i = 0; i < dim; i++) {
 		for (int j = 0; j < dim; j++) {

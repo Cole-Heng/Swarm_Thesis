@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 		{
 			/* FILE_INIT {file_name}
 			 * {file_to_output_to} */
-			if (argc == 4)
+			if (argc == 5)
 			{
 				FILE *init_file;
 
@@ -167,13 +167,14 @@ int main(int argc, char *argv[])
 		timew += (double)(stopw - startw) * 1000.0 / CLOCKS_PER_SEC;
 	}
 
-	output_simulation_final_stats(boids_p, parameters.dimension_size);
+	
 
 	// TIMING
 	clock_t stop = clock();
 	double elapsed = (double)(stop - start) * 1000.0 / CLOCKS_PER_SEC;
 	printf("Time elapsed in ms: %f\n", elapsed);
 	printf("Time write elapsed in ms: %f\n", timew);
+	output_simulation_final_stats(boids_p, parameters.dimension_size, elapsed);
 
 	/* cleanup */
 	free_simulate();
