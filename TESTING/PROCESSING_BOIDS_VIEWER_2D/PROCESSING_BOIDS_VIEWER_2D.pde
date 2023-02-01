@@ -41,8 +41,8 @@ boolean run_once = false;
 boolean all_frame_play = false;
 void draw()
 {
-	int x_width = 600;
-	int y_width = 600;
+	int x_width = 1000;
+	int y_width = 1000;
 	int scale_factor = 1;
 	int scale_size = 1;
   
@@ -67,10 +67,10 @@ void draw()
 		boids = new Boids(num_boids, scale_size, scale_factor);
 
 		/* create GUI items */
-		next_frame_button = new ButtonsThatAreOneClick(0, 600, 149, 50, color(0,255,0), color(255,255,255), "Next Frame");
-		back_frame_button = new ButtonsThatAreOneClick(150, 600, 149, 50, color(0,0,255), color(255,255,255), "Back Frame");
-		all_frames_button = new ButtonsThatAreOneClick(300, 600, 149, 50, color(255,0,0), color(255,255,255), "Play Frames");
-    show_ATONs_button = new ButtonsThatAreOneClick(450, 600, 149, 50, color(0, 125, 125), color(255,255,255), "Show/Hide ATONs");
+		next_frame_button = new ButtonsThatAreOneClick(0, 1000, 149, 50, color(0,255,0), color(255,255,255), "Next Frame");
+		back_frame_button = new ButtonsThatAreOneClick(150, 1000, 149, 50, color(0,0,255), color(255,255,255), "Back Frame");
+		all_frames_button = new ButtonsThatAreOneClick(300, 1000, 149, 50, color(255,0,0), color(255,255,255), "Play Frames");
+    show_ATONs_button = new ButtonsThatAreOneClick(450, 1000, 149, 50, color(0, 125, 125), color(255,255,255), "Show/Hide ATONs");
     
     println(show_ATONs_button.is_button_on());
     

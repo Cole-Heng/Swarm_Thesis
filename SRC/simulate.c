@@ -677,8 +677,8 @@ void output_simulation_final_stats(boids_s *boids_p, int dim, double elapsed) {
 	fprintf(file_sim_stats, "success_and_dead: %d\n", success_and_dead);
 	fprintf(file_sim_stats, "fail_and_alive: %d\n", fail_and_alive);
 	fprintf(file_sim_stats, "fail_and_dead: %d\n", fail_and_dead);
-	fprintf(file_sim_stats, "Success_frame: %d\n", success_frame);
-	fprintf(file_sim_stats, "Elapsed_time: %f\n", elapsed);
+	fprintf(file_sim_stats, "success_frame: %d\n", success_frame);
+	fprintf(file_sim_stats, "elapsed_time: %f\n", elapsed);
 	fprintf(file_sim_stats, "Heatmap:\n");
 	for (int i = 0; i < dim; i++) {
 		for (int j = 0; j < dim; j++) {

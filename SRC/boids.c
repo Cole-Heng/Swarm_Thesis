@@ -79,6 +79,12 @@ int main(int argc, char *argv[])
 				printf("Error running - boids RAND_INIT num_boids (TICK num_ticks || STEADY_STATE) file_to_output_to\n");
 				return -1;
 			}
+			/* Seed random */
+			if (RNG_seed < 0) {
+				srand(time(NULL));
+			} else {
+				srand(RNG_seed);
+			}
 
 			/* initialize the data structures for the boids */
 			boids_p = init_random_boids(num_boids, parameters.dimension_size);
@@ -101,6 +107,13 @@ int main(int argc, char *argv[])
 					printf("Can't open file %s\n", argv[2]);
 					exit(-1);
 				}
+				RNG_seed = atoi(argv[4]);
+				/* Seed random */
+				if (RNG_seed < 0) {
+					srand(time(NULL));
+				} else {
+					srand(RNG_seed);
+				}
 
 				boids_p = init_boids_with_file(&num_boids, &num_frames, &parameters, init_file);
 				objs_p = init_objects_with_file(&num_objects, init_file);
@@ -109,7 +122,6 @@ int main(int argc, char *argv[])
 
 				/* setup the output filename */
 				out_filename = argv[3];
-				RNG_seed = atoi(argv[4]);
 			}
 			else
 			{
@@ -122,13 +134,6 @@ int main(int argc, char *argv[])
 			printf("Error running - boids FILE_INIT file_name file_to_output_to\n");
 			printf("OR - boids RAND_INIT num_boids num_frames file_to_output_to\n");
 		}
-	}
-
-	/* Seed random */
-	if (RNG_seed < 0) {
-		srand(time(NULL));
-	} else {
-		srand(RNG_seed);
 	}
 
 	/* initialize data structures for simulation */
