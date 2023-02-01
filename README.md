@@ -55,12 +55,12 @@ There are two modes to initialize the starting state of the simulation. A random
 
 Random Initialization
 ```bash
-./boids_sim RAND_INIT <num_boids> <num_frames> <dimension_size> <num_objects> <log_file_name>
+./boids_sim RAND_INIT <num_boids> <num_frames> <dimension_size> <num_objects> <log_file_name> <RNG_seed>
 ```
 
 File Initialization
 ```bash
-./boids_sim FILE_INIT <init_file> <log_file_name>
+./boids_sim FILE_INIT <init_file> <log_file_name> <RNG_seed>
 ```
 <br>
 
@@ -71,6 +71,8 @@ Parameters
 - **num_objects** - The number of objects to be created. Boids try to avoid collision with these
 - **log_file_name** - The name of the log file the simulation will write to for animation playback later
 - **init_file** - The name (including extension like `.txt`) of the file that holds all the initialization data
+- **RNG_seed** - A positive integer number or zero to be the seed for `srand()` function or a
+  negative number to seed using clock time (aka random seed)
 
 
 ### Running Multiple Simulations

@@ -35,21 +35,19 @@ int main(int argc, char *argv[])
 	parameters_s parameters;
 	FILE *file_p;
 	int i;
-
-	/* Seed random */
-	srand(time(NULL));
+	int RNG_seed;
 
 	/* Default Parameter settings. 
 	 * neighbour are distances for neighbour calc 
 	 * wights are float that we divide vector by */
-	parameters.dimension_size = 1000;
-	parameters.neighbour_distance = 75;
-	parameters.neighbour_desired_seperation = 25;
+	parameters.dimension_size = 1000; // The size, N, of the arena, an NxN square
+	parameters.neighbour_distance = 50; // Radius that a boid can see around it
+	parameters.neighbour_desired_seperation = 25; // Desired distance to stay away from neighbors
 	parameters.weight_rule1 = 75; //Center of mass
 	parameters.weight_rule2 = 4; //Avoid others
 	parameters.weight_rule3 = 10; //Common velocity
-	parameters.boid_size_radius = 5;
-	parameters.object_radius = 5;
+	parameters.boid_size_radius = 5; // The physical size of a boid
+	parameters.object_radius = 5; // The physical size of an object
 
 	/* read arguments for the size of the boids to implement, how long to simulate,
 	 * and the file to ouput the simulation too:
@@ -66,14 +64,15 @@ int main(int argc, char *argv[])
 	{
 		if (strcmp(argv[1], "RAND_INIT") == 0)
 		{
-			if (argc == 7)
+			if (argc == 8)
 			{
-				printf("You chose | %s | %s | %s | %s | %s | %s\n", argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
+				printf("You chose | %s | %s | %s | %s | %s | %s | %s\n", argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
 				num_boids = atoi(argv[2]);
 				num_frames = atoi(argv[3]);
 				parameters.dimension_size = atoi(argv[4]);
 				num_objects = atoi(argv[5]);
 				out_filename = argv[6];
+				RNG_seed = atoi(argv[7]);
 			}
 			else
 			{
@@ -93,7 +92,7 @@ int main(int argc, char *argv[])
 			{
 				FILE *init_file;
 
-				printf("You chose | %s | %s | %s\n", argv[1], argv[2], argv[3]);
+				printf("You chose | %s | %s | %s | %s\n", argv[1], argv[2], argv[3], argv[4]);
 
 				/* open the file to be read for initialization */
 				init_file = fopen(argv[2], "r");
@@ -110,6 +109,7 @@ int main(int argc, char *argv[])
 
 				/* setup the output filename */
 				out_filename = argv[3];
+				RNG_seed = atoi(argv[4]);
 			}
 			else
 			{
@@ -122,6 +122,13 @@ int main(int argc, char *argv[])
 			printf("Error running - boids FILE_INIT file_name file_to_output_to\n");
 			printf("OR - boids RAND_INIT num_boids num_frames file_to_output_to\n");
 		}
+	}
+
+	/* Seed random */
+	if (RNG_seed < 0) {
+		srand(time(NULL));
+	} else {
+		srand(RNG_seed);
 	}
 
 	/* initialize data structures for simulation */
