@@ -37,7 +37,9 @@ void free_simulate();
  */
 void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p, int frame_num);
 
+#ifdef USE_CBF
 void CBF_solution(iboid_s *current_boid);
+#endif
 
 /**
  * @brief Determine which boids from the whole set are within a Boid's field of
@@ -49,6 +51,7 @@ void CBF_solution(iboid_s *current_boid);
  */
 void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius);
 
+#ifdef USE_EXTENDED
 /**
  * @brief Update the position of a Ghost Boid to atch the Boid it is assigned to
  * and update the velocity to point to the waypoint
@@ -57,6 +60,7 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius);
  * @param objects The set of all objects
  */
 void update_ghost(iboid_s *boid, objs_s* objects);
+#endif
 
 /** 
  * These functions are only if the simulation is set to track Boid deaths
@@ -105,6 +109,7 @@ short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dime
 short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s* objects);
 #endif
 
+#ifdef USE_EXTENDED
 /**
  * @brief Create cardinal marks, the ATONs that line the walls
  * 
@@ -133,6 +138,7 @@ boids_s *get_CMs_pointer();
  * @return boids_s* The pointer to the isolated danger marks
  */
 boids_s *get_IDMs_pointer();
+#endif
 
 /**
  * These functions are for tracking the size of swarms. In othe words, checking

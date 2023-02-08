@@ -40,9 +40,13 @@ void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight);
 void init_simulate(boids_s* boids_p, parameters_s* parameters, objs_s* objs)
 {
 	/* allocate data structure for neighbours */
+	#ifdef USE_EXTENDED
 	CMs = create_cardinal_marks(parameters);
 	IDMs = create_isolated_danger_marks(objs);
 	neighbours_p = allocate_boids(boids_p->num_boids + CMs->num_boids);
+	#else
+	neighbours_p = allocate_boids(boids_p->num_boids);
+	#endif
 	file_sim_stats = (FILE*)fopen("sim_statistics.log", "w");
 	heatmap = (int**)malloc(parameters->dimension_size * sizeof(int*));
 	for (int i = 0; i < parameters->dimension_size; i++) {
@@ -54,10 +58,13 @@ void free_simulate()
 {
 	/* allocate data structure for neighbours */
 	free_boids(neighbours_p); 
+	#ifdef USE_EXTENDED
 	free_boids(CMs); 
 	free_boids(IDMs); 
+	#endif
 }
 
+#ifdef USE_EXTENDED
 boids_s *create_cardinal_marks(parameters_s* parameters) {
 	FILE *out;
 
@@ -202,6 +209,7 @@ boids_s *create_isolated_danger_marks(objs_s* objs) {
 	fclose(out);
 	return IDMs;
 }
+#endif
 
 /*
  * Rule 1: Boids try to fly towards the centre of mass of neighbouring boids.
@@ -216,14 +224,17 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 	{
 		#ifdef ENFORCE_DEATH
 			if (boids_p->the_boids[i]->life_status == DEAD)
+				heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)]++;
 				continue;
 		#endif
 
+		#ifdef USE_EXTENDED
 		/* Point ghost boid towards waypoint and position on boid*/
 		if (boids_p->the_boids[i]->is_leader) 
 		{
 			update_ghost(boids_p->the_boids[i], objs_p);
 		}
+		#endif
 
 		/* find neighbours */
 		find_neighbours(boids_p, boids_p->the_boids[i], parameters->neighbour_distance);
@@ -294,6 +305,7 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 
 }
 
+#ifdef USE_CBF
 void CBF_solution(iboid_s *current_boid) {
 	// Boid has no neighbors, so skip CBF calculation
 	if (neighbours_p->num_boids == 0) {
@@ -369,6 +381,7 @@ void CBF_solution(iboid_s *current_boid) {
 	current_boid->velocity->y = work->solution->x[1];
 	normalize_vector(current_boid->velocity);
 }
+#endif
 
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 {
@@ -492,6 +505,7 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 			}
 		}
 
+		#ifdef USE_EXTENDED
 		// Compare to Cardinal Marks (CMs)
 		for (i = 0; i < CMs->num_boids; i++)
 		{
@@ -511,6 +525,7 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 				neighbours_p->num_boids++;
 			}
 		}
+		#endif
 	}
 }
 
@@ -573,6 +588,7 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 }
 #endif
 
+#ifdef USE_EXTENDED
 void update_ghost(iboid_s *boid, objs_s* objects)
 {
 	/* Update position to be on boid */
@@ -598,7 +614,9 @@ boids_s *get_CMs_pointer() {
 boids_s *get_IDMs_pointer() {
 	return IDMs;
 }
+#endif
 
+#ifdef TRACK_SWARM
 void set_all_unvisted(boids_s *boids_p) {
 	for (int i = 0; i < boids_p->num_boids; i++) {
 		boids_p->the_boids[i]->was_visited = FALSE;
@@ -652,6 +670,7 @@ void find_links(boids_s *out, boids_s *boids_p, iboid_s *current_boid, int radiu
 		}
 	}
 }
+#endif
 
 void output_simulation_final_stats(boids_s *boids_p, int dim, double elapsed) {
 	int success_and_alive = 0;
