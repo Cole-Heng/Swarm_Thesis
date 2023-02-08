@@ -11,6 +11,7 @@ boids_sim
 tags
 TESTING/boids_sim
 TESTING/simulation_logs/*
+TESTING/Results
 *.log
 *.code-workspace
 /src/*.code-workspace

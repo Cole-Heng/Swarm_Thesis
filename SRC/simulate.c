@@ -456,10 +456,13 @@ void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 	/* add ghost boid if leader */
 	if (boid->is_leader)
 	{
-		add_vector(vec, boid->ghost_boid->velocity);
+		vector_s* temp_vec = allocate_vector();
+		copy_vector(boid->ghost_boid->velocity, temp_vec);
+		multiply_vector_by_scalar(temp_vec, neighbours->num_boids);
+		add_vector(vec, temp_vec);
 	}
 	/* remove yourself from the weighting, add one if ghost boid is present*/
-	divide_vector_by_scalar(vec, (neighbours->num_boids-1 + boid->is_leader));
+	divide_vector_by_scalar(vec, (neighbours->num_boids-1 + (boid->is_leader * neighbours->num_boids)));
 
 	/* make it a unit vector */
 	normalize_vector(vec);
