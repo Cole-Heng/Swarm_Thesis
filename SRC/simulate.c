@@ -215,8 +215,12 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 	for (int i = 0; i < boids_p->num_boids; i++)
 	{
 		#ifdef ENFORCE_DEATH
-			if (boids_p->the_boids[i]->life_status == DEAD)
+			if (boids_p->the_boids[i]->life_status == DEAD){
+				if (heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)] < 7){
+					heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)]++;
+				}
 				continue;
+			}
 		#endif
 
 		/* Point ghost boid towards waypoint and position on boid*/
