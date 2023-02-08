@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
 
 	/* initialize data structures for simulation */
 	init_simulate(boids_p, &parameters, objs_p);
+	#ifdef USE_EXTENDED
 	boids_s *CMs = get_CMs_pointer();
 	boids_s *IDMs = get_IDMs_pointer();
 
@@ -150,6 +151,9 @@ int main(int argc, char *argv[])
 
 	/* Write Aids TO Navigation to the file header */
 	write_atons_to_file(file_p, CMs, IDMs);
+	#else
+	file_p = init_output_file_for_simulation(out_filename, num_boids, num_frames+1, &parameters, 2, num_objects, 0);
+	#endif
 
 	/* write initial state to the file */
 	write_frame_to_output_file(file_p, boids_p);

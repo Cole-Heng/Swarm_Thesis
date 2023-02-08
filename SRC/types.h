@@ -46,7 +46,11 @@
 
 #define AVOID_SUCCESS // define if boids should avoid other boids that have reached the waypoint 
 
-//#define USE_CBF // define if a CBF solution should be calculated and used, or if boids solution alone should be used
+// #define USE_EXTENDED
+
+#ifdef USE_EXTENDED // CBF builds on and depends on Boids_Extended
+#define USE_CBF // define if a CBF solution should be calculated and used, or if boids solution alone should be used
+#endif
 
 #ifndef TYPES_H
 #define TYPES_H
