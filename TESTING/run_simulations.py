@@ -35,7 +35,10 @@ def main():
 
     # Initialize dictionaries for simulation data
     file_in = open(args.init_file, "r")
-    num_boids = int(file_in.readline())
+    num_boids = file_in.readline()
+    while (num_boids[0] == "#"):
+        num_boids = file_in.readline()  # skip comment lines
+    num_boids = int(num_boids)
     file_in.close()
     trial_number = [i for i in range(args.num_sims)]
     swarm_achieved = [0] * args.num_sims
@@ -183,6 +186,7 @@ def main():
         mng.full_screen_toggle()
         plt.show()
 
+        #vismap = expand_heatmap(heatmap)
         ax = plt.subplot()
         im = ax.imshow(heatmap, cmap='hot',
                        interpolation='none', norm=colors.LogNorm())
@@ -193,6 +197,21 @@ def main():
         plt.colorbar(im, cax=cax)
 
         plt.show()
+
+
+# Take heatmap of individual boid location points and expand it to a map of
+# visibility based on a visibility radius of 50
+def expand_heatmap(heatmap):
+    visibility_map = np.zeros((1000, 1000))
+    for x in range(1000):
+        print(x)
+        for y in range(1000):
+            if (heatmap[y][x] == 0):
+                continue
+            for r in range(max(0, y - 50), min(1000, y + 50)):
+                for c in range(max(0, x - 50), min(1000, x + 50)):
+                    visibility_map[r][c] += heatmap[y][x]
+    return visibility_map
 
 
 def parse_sim_stats():

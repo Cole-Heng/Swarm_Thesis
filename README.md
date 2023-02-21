@@ -103,7 +103,18 @@ To playback a log file to see the animation, Processing needs to be downloaded f
 
 ### File From Scratch
 
-To create a file from scratch, 3 sections must be written, the Header, the Boids, and the Objects. Each parameter is on a new line and there are no blank lines in the file. An example init file can be found at `./TESTING/test_init.txt`. The structure of parameters in the file is below and many of the definitions of the parameters can be found from commands in above sections. All values should be `int`
+To create a file from scratch, 3 sections must be written, the Header, the
+Boids, and the Objects. Each parameter is on a new line and there are no blank
+lines in the file. An example init file can be found at
+`./TESTING/test_init.txt`. The structure of parameters in the file is below and
+many of the definitions of the parameters can be found from commands in above
+sections. All values should be `int`
+
+**Note** Comment lines can be added to the very top of an init file by starting
+a line with `#`. Comments cannot be put anywhere other than the start, but any
+number of comment lines can be added
+**WARNING** If you use comment lines, each line has a maximum of 100 characters,
+otherwise confusing runtime errors occur
 
 #### Header
 

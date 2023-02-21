@@ -24,7 +24,11 @@
 #endif
 
 #ifndef BOID_RADIUS
-#define BOID_RADIUS 5
+#define BOID_RADIUS 5 //physical size of a boid
+#endif
+
+#ifndef GHOST_INFLUENCE
+#define GHOST_INFLUENCE 1.0 //a float percentage
 #endif
 
 // Pick the dimensions
@@ -46,10 +50,10 @@
 
 #define AVOID_SUCCESS // define if boids should avoid other boids that have reached the waypoint 
 
-//#define USE_EXTENDED
+#define USE_EXTENDED
 
 #ifdef USE_EXTENDED // CBF builds on and depends on Boids_Extended
-//#define USE_CBF // define if a CBF solution should be calculated and used, or if boids solution alone should be used
+#define USE_CBF // define if a CBF solution should be calculated and used, or if boids solution alone should be used
 #endif
 
 #ifndef TYPES_H

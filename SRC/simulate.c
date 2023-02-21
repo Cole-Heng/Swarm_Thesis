@@ -224,9 +224,10 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 	{
 		#ifdef ENFORCE_DEATH
 			if (boids_p->the_boids[i]->life_status == DEAD){
-				if (heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)] < 7){
-					heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)]++;
-				}
+				//add back to allow boids to see and add to heatmap when dead
+				// if (heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)] < 7){
+				// 	heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)]++;
+				// }
 				continue;
 			}
 		#endif
@@ -458,7 +459,7 @@ void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 	{
 		vector_s* temp_vec = allocate_vector();
 		copy_vector(boid->ghost_boid->velocity, temp_vec);
-		multiply_vector_by_scalar(temp_vec, neighbours->num_boids);
+		multiply_vector_by_scalar(temp_vec, neighbours->num_boids * GHOST_INFLUENCE);
 		add_vector(vec, temp_vec);
 	}
 	/* remove yourself from the weighting, add one if ghost boid is present*/

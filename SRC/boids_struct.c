@@ -44,11 +44,14 @@ boids_s *init_boids_with_file(int *num_boids, int *num_frames, parameters_s* par
 {
 	int i, j;
 	float read[7];
-	char string_numbers[8];
+	char string_numbers[100];
 
-	fgets(string_numbers, 8, fp);
+	fgets(string_numbers, 100, fp);
 	if (string_numbers != NULL)
 	{
+		while (string_numbers[0] == '#') {
+			fgets(string_numbers, 100, fp); //skip comment lines
+		}
 		*num_boids = atoi(string_numbers);
 	}
 	else
