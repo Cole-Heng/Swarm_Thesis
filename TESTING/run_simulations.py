@@ -13,6 +13,8 @@ import sys
 from subprocess import run
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from time import sleep
 import argparse
 import os
@@ -44,6 +46,7 @@ def main():
     fail_and_dead = [0] * args.num_sims
     success_frame = [0] * args.num_sims
     elapsed_time = [0] * args.num_sims
+    death_points = []
     heatmap = np.zeros((1000, 1000))
 
     # Make a dir to save all simulation logs and clear it
@@ -72,10 +75,16 @@ def main():
             fail_and_dead[i] = int(stats[5])
             success_frame[i] = int(stats[6])
             elapsed_time[i] = float(stats[7])
-            heatFile = open("./sim_statistics.log")
-            tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=7)
+            stats_file = open("./sim_statistics.log")
+            for j in range(7):
+                line = stats_file.readline()
+            for j in range(fail_and_dead[i] + success_and_dead[i]):
+                line = stats_file.readline()
+                temp = line.split()
+                death_points.append((float(temp[0]), float(temp[1])))
+            tempHeat = np.loadtxt(stats_file, delimiter=",", skiprows=1)
             heatmap = heatmap + tempHeat
-            heatFile.close()
+            stats_file.close()
             run(["cp", "./sim_statistics.log",
                 "./simulation_logs/sim_statistics{}.log".format(i)])
             sleep(0.1)
@@ -97,10 +106,16 @@ def main():
             fail_and_dead[i] = int(stats[5])
             success_frame[i] = int(stats[6])
             elapsed_time[i] = float(stats[7])
-            heatFile = open("./sim_statistics.log")
-            tempHeat = np.loadtxt(heatFile, delimiter=",", skiprows=5)
+            stats_file = open("./sim_statistics.log")
+            for j in range(7):
+                line = stats_file.readline()
+            for j in range(fail_and_dead[i] + success_and_dead[i]):
+                line = stats_file.readline()
+                temp = line.split()
+                death_points.append((float(temp[0]), float(temp[1])))
+            tempHeat = np.loadtxt(stats_file, delimiter=",", skiprows=1)
             heatmap = heatmap + tempHeat
-            heatFile.close()
+            stats_file.close()
             sleep(0.1)
 
     # Display all analysis plots
@@ -168,7 +183,15 @@ def main():
         mng.full_screen_toggle()
         plt.show()
 
-        plt.imshow(heatmap, cmap='hot', interpolation='none')
+        ax = plt.subplot()
+        im = ax.imshow(heatmap, cmap='hot',
+                       interpolation='none', norm=colors.LogNorm())
+        for x, y in death_points:
+            ax.scatter([x], [y], c='b', marker='x', s=10)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
+        plt.colorbar(im, cax=cax)
+
         plt.show()
 
 
@@ -207,6 +230,8 @@ def parse_sim_stats():
         elif (temp[0] == "elapsed_time:"):
             elapsed_time = temp[1]
         elif (temp[0] == "Heatmap:"):
+            break
+        elif (temp[0] == "deaths:"):
             break
         else:
             print("WARNING: Unknown line read from simulation stats log:")

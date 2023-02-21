@@ -704,6 +704,12 @@ void output_simulation_final_stats(boids_s *boids_p, int dim, double elapsed) {
 	fprintf(file_sim_stats, "fail_and_dead: %d\n", fail_and_dead);
 	fprintf(file_sim_stats, "success_frame: %d\n", success_frame);
 	fprintf(file_sim_stats, "elapsed_time: %f\n", elapsed);
+	fprintf(file_sim_stats, "deaths: \n");
+	for (int i = 0; i < boids_p->num_boids; i++) {
+		if (boids_p->the_boids[i]->life_status == DEAD) {
+			fprintf(file_sim_stats, "%f %f\n", boids_p->the_boids[i]->position->x, boids_p->the_boids[i]->position->y);
+		}
+	}
 	fprintf(file_sim_stats, "Heatmap:\n");
 	for (int i = 0; i < dim; i++) {
 		for (int j = 0; j < dim; j++) {
