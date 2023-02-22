@@ -459,7 +459,7 @@ void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 	{
 		vector_s* temp_vec = allocate_vector();
 		copy_vector(boid->ghost_boid->velocity, temp_vec);
-		multiply_vector_by_scalar(temp_vec, imax(1, neighbours->num_boids * GHOST_INFLUENCE));
+		multiply_vector_by_scalar(temp_vec, imax(1, neighbours->num_real_boids * GHOST_INFLUENCE));
 		add_vector(vec, temp_vec);
 	}
 	/* remove yourself from the weighting, add one if ghost boid is present*/
