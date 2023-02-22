@@ -163,6 +163,7 @@ boids_s *allocate_boids(int num_boids)
 	boids = (boids_s*)malloc(sizeof(boids_s));
 	boids->the_boids = (iboid_s**)malloc(sizeof(iboid_s*)*num_boids);
 	boids->num_boids = num_boids;
+	boids->num_real_boids = num_boids;
 
 	for (i = 0; i < num_boids; i++)
 	{
@@ -311,12 +312,35 @@ void sum_all_boids_position(boids_s *boids_p, vector_s *sum)
 		add_vector(sum, boids_p->the_boids[i]->position);
 	}
 }
+
+void sum_all_real_boids_position(boids_s *boids_p, vector_s *sum)
+{
+	int i;
+
+	init_vector_to_0(sum);
+	for (i = 0; i < boids_p->num_real_boids; i++)
+	{
+		add_vector(sum, boids_p->the_boids[i]->position);
+	}
+}
+
 void sum_all_boids_velocity(boids_s *boids_p, vector_s *sum)
 {
 	int i;
 
 	init_vector_to_0(sum);
 	for (i = 0; i < boids_p->num_boids; i++)
+	{
+		add_vector(sum, boids_p->the_boids[i]->velocity);
+	}
+}
+
+void sum_all_real_boids_velocity(boids_s *boids_p, vector_s *sum)
+{
+	int i;
+
+	init_vector_to_0(sum);
+	for (i = 0; i < boids_p->num_real_boids; i++)
 	{
 		add_vector(sum, boids_p->the_boids[i]->velocity);
 	}

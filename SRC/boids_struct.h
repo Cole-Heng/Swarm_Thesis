@@ -37,4 +37,6 @@ void update_boid(iboid_s *boid, int dimension_size);
 void copy_boid(iboid_s *from, iboid_s *to);
 
 void sum_all_boids_position(boids_s *boids_p, vector_s *sum);
+void sum_all_real_boids_position(boids_s *boids_p, vector_s *sum);
 void sum_all_boids_velocity(boids_s *boids_p, vector_s *sum);
+void sum_all_real_boids_velocity(boids_s *boids_p, vector_s *sum);

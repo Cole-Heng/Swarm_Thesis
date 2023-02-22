@@ -390,11 +390,11 @@ void CBF_solution(iboid_s *current_boid) {
 void rule1(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 {
 	/* calculate the neighbours weight */
-	sum_all_boids_position(neighbours, vec);
+	sum_all_real_boids_position(neighbours, vec);
 	/* remove yourself */
 	sub_vector(vec, boid->position);
 	/* remove yourself from the weighting */
-	divide_vector_by_scalar(vec, neighbours->num_boids-1);
+	divide_vector_by_scalar(vec, neighbours->num_real_boids-1);
 
 	/* want to go towards that point */
 	sub_vector(vec, boid->position);
@@ -459,11 +459,11 @@ void rule3(vector_s *vec, iboid_s *boid, boids_s *neighbours, float weight)
 	{
 		vector_s* temp_vec = allocate_vector();
 		copy_vector(boid->ghost_boid->velocity, temp_vec);
-		multiply_vector_by_scalar(temp_vec, neighbours->num_boids * GHOST_INFLUENCE);
+		multiply_vector_by_scalar(temp_vec, imax(1, neighbours->num_boids * GHOST_INFLUENCE));
 		add_vector(vec, temp_vec);
 	}
 	/* remove yourself from the weighting, add one if ghost boid is present*/
-	divide_vector_by_scalar(vec, (neighbours->num_boids-1 + (boid->is_leader * neighbours->num_boids)));
+	divide_vector_by_scalar(vec, (neighbours->num_boids-1 + (boid->is_leader)));
 
 	/* make it a unit vector */
 	normalize_vector(vec);
@@ -488,6 +488,7 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 	else
 	{
 		neighbours_p->num_boids = 0;
+		neighbours_p->num_real_boids = 0;
 		// Compare to boids
 		for (i = 0; i < boids_p->num_boids; i++)
 		{
@@ -503,6 +504,7 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 			{
 				copy_boid(boids_p->the_boids[i], neighbours_p->the_boids[neighbours_p->num_boids]);
 				neighbours_p->num_boids++;
+				neighbours_p->num_real_boids++;
 				#ifdef SHARE_GOAL
 				if(current_boid->is_leader == TRUE && boids_p->the_boids[i]->life_status == ALIVE && boids_p->the_boids[i]->is_leader == FALSE) {
 					set_boid_leader(boids_p->the_boids[i], TRUE);
