@@ -1,3 +1,4 @@
+# open field, 20 boids, 1 leader
 20
 5000
 1000
