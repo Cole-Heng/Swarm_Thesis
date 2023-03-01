@@ -60,6 +60,7 @@ void write_frame_to_output_file(FILE *f_p, boids_s *boids_p)
 		fprintf(f_p, "%d\n", boids_p->the_boids[i]->life_status);
 		fprintf(f_p, "%d\n", boids_p->the_boids[i]->is_leader);
 	}
+	fflush(f_p);
 }
 
 void write_objects_to_file(FILE *f_p, objs_s *objs_p)

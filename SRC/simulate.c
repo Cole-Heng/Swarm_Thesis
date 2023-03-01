@@ -384,6 +384,15 @@ void CBF_solution(iboid_s *current_boid) {
 	current_boid->velocity->x = work->solution->x[0];
 	current_boid->velocity->y = work->solution->x[1];
 	normalize_vector(current_boid->velocity);
+
+	// free all osqp structures/memory
+	osqp_cleanup(work);
+	if (data) {
+        if (data->A) c_free(data->A);
+        if (data->P) c_free(data->P);
+        c_free(data);
+    }
+	c_free(settings);\
 }
 #endif
 
