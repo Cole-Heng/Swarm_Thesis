@@ -70,7 +70,11 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 
 	out = (FILE*)fopen("CM_coords.log", "w");
 
-	int num_boids_per_wall = parameters->dimension_size / (4 * parameters->boid_size_radius);
+	// seperation ratio for gap between ATONs. They position sep_ratio * boid_radius away from each other
+	// 1 = overlapping, 2 = side-by-side, and so on
+	int sep_ratio = 2; 
+
+	int num_boids_per_wall = parameters->dimension_size / (sep_ratio * parameters->boid_size_radius);
 	boids_s *CMs = allocate_boids(4 * num_boids_per_wall);
 
 	
@@ -81,7 +85,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->y = 0;
 	for (j = 0; j < num_boids_per_wall; j++) { //TL to BL
 		CMs->the_boids[j]->position->x = 0;
-		CMs->the_boids[j]->position->y = 4 * j * parameters->boid_size_radius;
+		CMs->the_boids[j]->position->y = sep_ratio * j * parameters->boid_size_radius;
 		copy_vector(temp_vec, CMs->the_boids[j]->velocity);
 		CMs->the_boids[j]->life_status = DEAD;
 	}
@@ -90,7 +94,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->x = 0;
 	temp_vec->y = -1;
 	for (j = 0; j < num_boids_per_wall; j++) { //BL tp BR
-		CMs->the_boids[j + i]->position->x = 4 * j * parameters->boid_size_radius;
+		CMs->the_boids[j + i]->position->x = sep_ratio * j * parameters->boid_size_radius;
 		CMs->the_boids[j + i]->position->y = parameters->dimension_size;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
@@ -101,7 +105,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->y = 0;
 	for (j = 0; j < num_boids_per_wall; j++) { //BR to TR
 		CMs->the_boids[j + i]->position->x = parameters->dimension_size;
-		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (4 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->y = parameters->dimension_size - (sep_ratio * j * parameters->boid_size_radius);
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
 	}
@@ -111,7 +115,7 @@ boids_s *create_cardinal_marks(parameters_s* parameters) {
 	temp_vec->x = 0;
 	temp_vec->y = 1;
 	for (j = 0; j < num_boids_per_wall; j++) { //TR to TL
-		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (4 * j * parameters->boid_size_radius);
+		CMs->the_boids[j + i]->position->x = parameters->dimension_size - (sep_ratio * j * parameters->boid_size_radius);
 		CMs->the_boids[j + i]->position->y = 0;
 		copy_vector(temp_vec, CMs->the_boids[j + i]->velocity);
 		CMs->the_boids[j + i]->life_status = DEAD;
@@ -271,7 +275,7 @@ void simulate_a_frame(boids_s* boids_p, parameters_s* parameters, objs_s* objs_p
 		// int
 		heatmap[(int)floor(boids_p->the_boids[i]->position->y)][(int)floor(boids_p->the_boids[i]->position->x)]++;
 		#ifdef TRACK_DEATH
-		check_collision(boids_p->the_boids[i], neighbours_p, parameters, objs_p);
+		check_collision(boids_p->the_boids[i], neighbours_p, parameters, objs_p, frame_num);
 		#endif
 	}
 
@@ -548,22 +552,26 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 }
 
 #ifdef TRACK_DEATH
-void check_collision(iboid_s *current_boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects){
+void check_collision(iboid_s *current_boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects, int frame_num){
 	if (check_boid_collision(current_boid, neighbours, parameters->boid_size_radius)) {
+		printf("Death occured in frame %d\n", frame_num);
 		current_boid->life_status = DEAD;
 	} 
 	else if (check_wall_collision(current_boid, parameters->boid_size_radius, parameters->dimension_size)) {
 		current_boid->life_status = DEAD;
+		printf("Death occured in frame %d\n", frame_num);
 	}
 	else if (check_object_collision(current_boid, parameters->boid_size_radius, objects)){
 		current_boid->life_status = DEAD;
+		printf("Death occured in frame %d\n", frame_num);
 	}
 }
 
 short check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_size_radius){
-	for (int i = 0; i < neighbours->num_boids; i++){
+	for (int i = 0; i < neighbours->num_real_boids; i++){
 		if (distance_between_vectors(current_boid->position, neighbours->the_boids[i]->position) <= 2 * boid_size_radius) {
-			// neighbours->the_boids[i]->life_status = DEAD; //Need this?
+			printf("boid died at (%f, %f) by hitting boid at (%f, %f)\n", current_boid->position->x, current_boid->position->y, neighbours->the_boids[i]->position->x, neighbours->the_boids[i]->position->y);
+			neighbours->the_boids[i]->life_status = DEAD; 
 			return TRUE;
 		}
 		// #ifdef SHARE_GOAL
@@ -578,15 +586,19 @@ short check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_
 
 short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dimension_size) {
 	if ((current_boid->position->x - boid_size_radius) <= 0) {
+		printf("boid died at (%f, %f) by hitting left wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	} 
 	else if ((current_boid->position->x + boid_size_radius) >= dimension_size) {
+		printf("boid died at (%f, %f) by hitting right wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	} 
 	else if ((current_boid->position->y - boid_size_radius) <= 0) {
+		printf("boid died at (%f, %f) by hitting top wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	} 
 	else if ((current_boid->position->y + boid_size_radius) >= dimension_size) {
+		printf("boid died at (%f, %f) by hitting bottom wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	}
 	return FALSE;
@@ -599,6 +611,7 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 				current_boid->success = TRUE;
 				continue;
 			}
+			printf("boid died at (%f, %f) by hitting object at (%f, %f)\n", current_boid->position->x, current_boid->position->y, objects->the_objs[i]->position->x, objects->the_objs[i]->position->y);
 			return TRUE; 
 		}
 	}

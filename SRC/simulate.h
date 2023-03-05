@@ -76,7 +76,7 @@ void update_ghost(iboid_s *boid, objs_s* objects);
  * @param parameters The simulation parameters
  * @param objects The set of all objects
  */
-void check_collision(iboid_s *boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects);
+void check_collision(iboid_s *boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects, int frame_num);
 
 /**
  * @brief Check if a Boid has collided with another boid

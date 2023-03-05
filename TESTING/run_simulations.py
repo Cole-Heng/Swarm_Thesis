@@ -178,7 +178,7 @@ def main():
         axs[1, 2].plot(elapsed_time)
         axs[1, 2].set_title("Elapsed time")
         axs[1, 2].set_xlabel("Sim number\nAvg: " + str(np.mean(elapsed_time)))
-        axs[1, 2].set_ylabel("Time (s)")
+        axs[1, 2].set_ylabel("Time (ms)")
 
         plt.suptitle("Swarm Simulation Analysis. {} Simulations Run".format(
             args.num_sims), fontweight='bold')
