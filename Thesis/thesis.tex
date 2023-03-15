@@ -1,0 +1,163 @@
+\documentclass{thesis}
+% Class options: [singlespacing, onehalfspacing]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BASIC INFORMATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\name{Cole}{Hengstebeck}
+\title{Safety Critical Control of Simple Robotic Swarm Algorithms Using Control Barrier Functions}
+\school{Miami University}
+\college{Engineering and Computing}
+\department{Electrical and Computer Engineering}
+\location{Oxford}{Ohio}
+\year{2023}
+
+\listadd{\advisors}{Dr. Peter Jamieson}
+\listadd{\advisors}{Dr. Bryan Van Scoy}
+% \advisor1{Dr. Peter Jamieson}
+% \advisor2{Dr. Bryan Van Scoy}
+\listadd{\committee}{Dr. David Hartup}
+\listadd{\committee}{Dr. Ran Zhang}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PACKAGES (not required)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{lipsum}                   % filler text
+\usepackage{graphicx}                 % figures
+\usepackage{amsmath,amssymb,amsthm}   % mathematics
+\usepackage{colonequals}              % for special := and =: symbols
+\usepackage[shortlabels]{enumitem}    % customizable itemization
+\usepackage{cite}                     % citation shortening
+\usepackage{calc}                     % allows arithmetic with LaTeX lengths
+\usepackage{booktabs}                 % pretty tables
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{thmtools}
+\theoremstyle{definition}
+\declaretheorem[name=Theorem, Refname={Theorem,Theorems}]{theorem}
+\declaretheorem[name=Lemma, Refname={Lemma,Lemmas}, sibling=theorem]{lemma}
+\declaretheorem[name=Corollary, Refname={Corollary,Corollaries}, sibling=theorem]{corollary}
+\declaretheorem[name=Proposition, Refname={Proposition,Propositions}, sibling=theorem]{proposition}
+\declaretheorem[name=Definition, Refname={Definition,Definitions}, sibling=theorem]{definition}
+\declaretheorem[name=Theorem, Refname={Theorem,Theorems}, sibling=theorem,
+			    shaded={bgcolor=black!20,margin=1ex,textwidth=\linewidth-2ex}]{theoremshaded}
+\declaretheorem[name=Theorem, Refname={Theorem,Theorems}, sibling=theorem,
+	            shaded={rulecolor=black, bgcolor=white, rulewidth=1pt, margin=1ex, textwidth=\linewidth-2ex-2pt}]{theoremboxed}
+
+% more legible proof environment and QED symbol
+\def\qed{\rule[0pt]{5pt}{5pt}\par\medskip}
+\renewcommand{\qedhere}{\hfill ~\qed}
+\renewenvironment{proof}{{\noindent\bf Proof.}}{\qedhere}
+
+% customized figure captions
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=colon]{caption}
+\captionsetup[figure]{name=Figure}
+\captionsetup[table]{aboveskip=3pt}
+
+% clever references (also for theorems and such)
+\usepackage[capitalise,nameinlink]{cleveref}
+
+% automatically look for graphics in these folders
+\graphicspath{{graphics/}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DEFINITIONS (not required)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\integer{\mathbb{Z}}                     % integers
+\def\real{\mathbb{R}}                        % real numbers
+\def\complex{\mathbb{C}}                     % complex numbers
+\def\tp{\mathsf{T}}                          % tranpose
+\def\Re{\mathrm{Re}}                         % real part of a complex number
+\def\Im{\mathrm{Im}}                         % imaginary part of a complex number
+\def\epsilon{\varepsilon}                    % epsilon
+\def\defeq{\colonequals}                     % definitions
+\def\eqdef{\equalscolon}                     % definitions
+\def\grad{\nabla}                            % gradient
+\DeclareMathOperator*{\argmin}{\arg\min}     % arg min
+\DeclareMathOperator*{\argmax}{\arg\max}     % arg max
+\DeclareMathOperator*{\minimize}{minimize}   % min
+\DeclareMathOperator*{\maximize}{maximize}   % max
+\DeclareMathOperator{\trace}{\mathrm{tr}}    % trace
+\DeclareMathOperator{\diag}{\mathrm{diag}}   % diag
+
+% MATRICES
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\pmat}[1]{\begin{pmatrix}#1\end{pmatrix}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MAIN DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\frontmatter
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ABSTRACT (200 word max, one paragraph)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+  This document is a template and guide for writing a thesis in \LaTeX. The document is divided into sections explaining the preferred way of typesetting equations, figures, tables, and more. To prepare your thesis, simply edit the file \texttt{thesis.tex} along with the chapters in the \texttt{chapter/} folder. To make the final pdf, open a command prompt, navigate to the folder containing the template, and run the following commands:
+  
+  \texttt{pdflatex thesis.tex}\\
+  \texttt{bibtex thesis.aux}\\
+  \texttt{pdflatex thesis.tex}\\
+  \texttt{pdflatex thesis.tex}
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TITLE AND SIGNATURE PAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\maketitle
+
+% the title page is the first numbered page (not the abstract),
+% but the first page number appears on the table of contents
+\setcounter{page}{3}
+
+% table of contents
+\tableofcontents
+
+% list of tables
+\lot
+
+% list of figures
+\lof
+
+% dedication (optional)
+\input{chapters/dedication}
+
+% acknowledgements (optional)
+\input{chapters/acknowledgements}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CHAPTERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mainmatter
+\input{chapters/1 - intro.tex}
+\input{chapters/2 - background.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% APPENDICES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendices
+
+
+\backmatter
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BIBLIOGRAPHY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addcontentsline{toc}{chapter}{References}
+\renewcommand\bibname{References}
+\bibliography{references}
+
+\end{document}
