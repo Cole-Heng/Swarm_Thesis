@@ -188,6 +188,7 @@ def main():
 
         #vismap = expand_heatmap(heatmap)
         ax = plt.subplot()
+        # ax.set_facecolor("skyblue")
         im = ax.imshow(heatmap, cmap='hot',
                        interpolation='none', norm=colors.LogNorm())
         for x, y in death_points:
