@@ -1,0 +1,63 @@
+\chapter{Mathematics}
+
+One of the main benefits of LaTeX is that it produces beautiful equations. You may think that you can replicate this in Microsoft Word, but I assure you, any mathematician can tell the difference (and loathes nasty pixelated equations!).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Typesetting equations}
+For equations, we take our guidelines from the \verb|amsmath| package. 
+Inline equations such as $e^{i\pi}=-1$ should be typeset using the \verb|$...$| syntax.
+
+\paragraph{Displayed equations.}
+If an equation is larger or more important and you want to put it on its own line, use the \verb|equation| or \verb|equation*| environment, depending on whether you want equation numbers or not. For non-numbered equations, you can use the shortcut \verb|\[...\]|. Only number an equation if you plan on referring to it later on. Equations are part of the text, so use punctuation in equations. To refer to an equation, give it a \verb|label| and use the \verb|eqref| command to refer to it. For example, the inline equation above was
+\begin{equation}\label{eqn:euler}
+  e^{i\pi} + 1 = 0,
+\end{equation}
+and we can refer to it as \eqref{eqn:euler} in the main text. Do not put the word ``equation'' before the reference, unless it starts a sentence. \Cref{eqn:euler} is an elegant equation that uses the symbols $e$, $i$, $\pi$, $0$, $1$, and $+$ all in a single equation. When starting a sentence with an equation, you can either type the word ``equation'' or use the \verb|\Cref| command. See \cref{sec:references} for more discussion about references.
+
+\paragraph{Long equations.} For equations that do not fit on one line, use the \verb|multline| or \verb|multline*| command, again depending on whether you want an equation number or not. For example,
+\begin{multline}
+	(x+y+z)^4 =
+	x^4+4 x^3 y+4 x^3 z+6 x^2 y^2+12 x^2 y z+6 x^2 z^2+4 x y^3+12 x y^2 z\\
+	+12 x y z^2+4 x z^3+y^4+4 y^3 z+6 y^2 z^2+4 y z^3+z^4.
+\end{multline}
+When breaking apart an equation, put the dangling symbol (in the case above, $+$) on a new line. Do not end a line with a symbol.
+
+\paragraph{Aligned equations.} To align equations, use the \verb|align| environment. A common usage is to align equations at the $=$ sign to make them more legible. When numbering equations that belong to the same group, use the \verb|subequations| environment. This produces
+\begin{subequations} \label{eqn:expanded_state_space}
+\begin{align}
+\dot x(t) &= A   x(t) + B_1    u(t) + B_2    w(t), \label{eq_state}       \\
+  	 y(t) &= C_1 x(t) + D_{11} u(t) + D_{12} w(t), \label{eq_measurement} \\
+	 z(t) &= C_2   x(t) + D_{21} u(t) + D_{22} w(t). \label{eq_regulation}
+\end{align}
+\end{subequations}
+We can then refer to all equations together as \eqref{eqn:expanded_state_space}, or to individual equations such as \eqref{eq_state} and \eqref{eq_measurement}.
+
+\paragraph{Additional information.} For a detailed guide on how to typeset equations, it is worth taking a look at the \verb|amsmath| user's guide\footnote{\url{http://mirrors.ctan.org/macros/latex/required/amsmath/amsldoc.pdf}}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Linear algebra}
+
+\paragraph{Vector spaces.} The vector space of $n$-dimensional real vectors is $\real^n$. Use the commands \verb|\bmat| and \verb|\pmat| to make vectors (and matrices) that use square brackets and parentheses, respectively. For example,
+\[
+  \bmat{x_1 \\ x_2 \\ \vdots \\ x_n} \qquad\text{and}\qquad \pmat{4 \\ 3 \\ -1 \\ 2}.
+\]
+The set of complex numbers is $\complex$, and the set of integers is $\integer$.
+
+\paragraph{Matrices.} Matrices are denoted by capital letters, such as $A$ or $B$. The transpose of a matrix is $A^\tp$, and the conjugate transpose is $A^*$. For square matrices, the trace is $\trace(A)$ and the determinant is $\det(A)$. Like vectors, you can create matrices such as
+\[
+  \bmat{a_{11} & a_{12} \\ a_{21} & a_{22}} \qquad\text{and}\qquad \pmat{1 & 2 \\ 3 & 4}.
+\]
+To separate blocks of a large matrix, use the \verb|\array| environment, and use \verb|\vdots|, \verb|\ldots|, and \verb|\ddots| to indicate repeated patterns in matrices. For example,
+\[
+  \left[\begin{array}{c|c}
+  A & B \\ \hline C & D \end{array}\right] = \left[\begin{array}{cccccc|c}
+  0 & 1 & 0 & \ldots & 0 & 0 & 0 \\
+  0 & 0 & 1 & \ldots & 0 & 0 & 0 \\
+  \vdots & \vdots & \vdots & \ddots & \vdots & \vdots & \vdots \\
+  0 & 0 & 0 & \ldots & 1 & 0 & 0 \\
+  0 & 0 & 0 & \ldots & 0 & 1 & 0 \\
+  -a_0 & -a_1 & -a_2 & \ldots & -a_{n-2} & -a_{n-1} & 1 \\ \hline
+  b_0 & b_1 & b_2 & \ldots & b_{n-2} & b_{n-1} & 0 \end{array}\right].
+\]

@@ -1,0 +1,65 @@
+\chapter{Environments}
+
+Environments in LaTeX are used to apply specific formatting to part of the document\footnote{\url{https://www.overleaf.com/learn/latex/Environments}}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Theorems}
+
+For Theorem environments, we use the \verb|amsthm| package. This allows us to define environments that are frequently used such as \verb|thm| for theorem, \verb|lem| for lemma, and so on. We can also use the \verb|thmtools| package to create boxed or shaded theorems for emphasis. Here are some examples.
+
+\begin{theorem}[A theorem]
+	\label{thm:big_result1}
+	This is how we state a theorem.
+\end{theorem}
+
+\begin{theoremshaded}[Shaded]
+	\label{thm:big_result2}
+	For emphasis, we can put it in a shaded box.
+\end{theoremshaded}
+
+\begin{theoremboxed}[Outlined]
+	\label{thm:big_result3}
+	Another way to create emphasis is with an outlined box.
+\end{theoremboxed}
+
+\begin{proof}
+We can write proofs using the \verb|proof| environment.
+\end{proof}
+
+The \verb|thmtools| package also provides \verb|restatable|, which is useful if you want to state the same result more than once (say, in the introduction and later in the paper), but don't want to give it a new label and equation numbers. See the documentation for more details\footnote{\url{https://ctan.math.illinois.edu/macros/latex/contrib/thmtools/doc/thmtools-manual.pdf}}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Lists}
+
+Create bulleted lists using the \verb|itemize| environment. For example:
+\begin{itemize}
+	\item First item
+	\item Second item
+	\item Third item
+\end{itemize}
+Numbered lists are created using the \verb|enumerate| environment. For customization, we use the \verb|enumitem| package with the \verb|shortlabels| option. This allows us to write customized lists easily. For example,
+\bigskip
+
+\hfill
+\begin{minipage}{0.45\linewidth}
+\begin{verbatim}
+\begin{enumerate}[(i)]
+    \item first item \label{x}
+    \item second item \label{y}
+    \item third item \label{z}
+\end{enumerate}
+\end{verbatim}
+\end{minipage}
+\hfill produces \hfill
+\begin{minipage}{0.3\linewidth}
+\begin{enumerate}[(i)]
+	\item first item \label{x}
+	\item second item \label{y}
+ 	\item third item \label{z}
+\end{enumerate}
+\end{minipage}
+\bigskip
+
+We can refer to items using \verb|\cref| as before. For example, the command \verb|\cref{x,y,z}| produces \cref{x,y,z}.
