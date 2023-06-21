@@ -554,23 +554,23 @@ void find_neighbours(boids_s *boids_p, iboid_s *current_boid, int radius)
 #ifdef TRACK_DEATH
 void check_collision(iboid_s *current_boid, boids_s *neighbours, parameters_s* parameters, objs_s* objects, int frame_num){
 	if (check_boid_collision(current_boid, neighbours, parameters->boid_size_radius)) {
-		printf("Death occured in frame %d\n", frame_num);
+		//printf("Death occured in frame %d\n", frame_num);
 		current_boid->life_status = DEAD;
 	} 
 	else if (check_wall_collision(current_boid, parameters->boid_size_radius, parameters->dimension_size)) {
 		current_boid->life_status = DEAD;
-		printf("Death occured in frame %d\n", frame_num);
+		//printf("Death occured in frame %d\n", frame_num);
 	}
 	else if (check_object_collision(current_boid, parameters->boid_size_radius, objects)){
 		current_boid->life_status = DEAD;
-		printf("Death occured in frame %d\n", frame_num);
+		//printf("Death occured in frame %d\n", frame_num);
 	}
 }
 
 short check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_size_radius){
 	for (int i = 0; i < neighbours->num_real_boids; i++){
 		if (distance_between_vectors(current_boid->position, neighbours->the_boids[i]->position) <= 2 * boid_size_radius) {
-			printf("boid died at (%f, %f) by hitting boid at (%f, %f)\n", current_boid->position->x, current_boid->position->y, neighbours->the_boids[i]->position->x, neighbours->the_boids[i]->position->y);
+			//printf("boid died at (%f, %f) by hitting boid at (%f, %f)\n", current_boid->position->x, current_boid->position->y, neighbours->the_boids[i]->position->x, neighbours->the_boids[i]->position->y);
 			neighbours->the_boids[i]->life_status = DEAD; 
 			return TRUE;
 		}
@@ -586,19 +586,19 @@ short check_boid_collision(iboid_s *current_boid, boids_s *neighbours, int boid_
 
 short check_wall_collision(iboid_s *current_boid, int boid_size_radius, int dimension_size) {
 	if ((current_boid->position->x - boid_size_radius) <= 0) {
-		printf("boid died at (%f, %f) by hitting left wall\n", current_boid->position->x, current_boid->position->y);
+		//printf("boid died at (%f, %f) by hitting left wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	} 
 	else if ((current_boid->position->x + boid_size_radius) >= dimension_size) {
-		printf("boid died at (%f, %f) by hitting right wall\n", current_boid->position->x, current_boid->position->y);
+		//printf("boid died at (%f, %f) by hitting right wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	} 
 	else if ((current_boid->position->y - boid_size_radius) <= 0) {
-		printf("boid died at (%f, %f) by hitting top wall\n", current_boid->position->x, current_boid->position->y);
+		//printf("boid died at (%f, %f) by hitting top wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	} 
 	else if ((current_boid->position->y + boid_size_radius) >= dimension_size) {
-		printf("boid died at (%f, %f) by hitting bottom wall\n", current_boid->position->x, current_boid->position->y);
+		//printf("boid died at (%f, %f) by hitting bottom wall\n", current_boid->position->x, current_boid->position->y);
 		return TRUE;
 	}
 	return FALSE;
@@ -611,7 +611,7 @@ short check_object_collision(iboid_s *current_boid, int boid_size_radius, objs_s
 				current_boid->success = TRUE;
 				continue;
 			}
-			printf("boid died at (%f, %f) by hitting object at (%f, %f)\n", current_boid->position->x, current_boid->position->y, objects->the_objs[i]->position->x, objects->the_objs[i]->position->y);
+			//printf("boid died at (%f, %f) by hitting object at (%f, %f)\n", current_boid->position->x, current_boid->position->y, objects->the_objs[i]->position->x, objects->the_objs[i]->position->y);
 			return TRUE; 
 		}
 	}

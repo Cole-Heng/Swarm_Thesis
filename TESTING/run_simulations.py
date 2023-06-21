@@ -92,13 +92,14 @@ def main():
                 "./simulation_logs/sim_statistics{}.log".format(i)])
             sleep(0.1)
     else:
+        print("\n~~~~~WARNING~~~~~ You selected to run these tests without saving all log files. Please ensure this is what you intended\n")
         for i in range(args.num_sims):
             # call_out = "../boids_sim FILE_INIT " + \
             #     str(args.init_file) + \
             #     " ./simulation_logs/sim_out.log {}".format(i)
             # print("Calling: " + call_out)
             run(["../boids_sim", "FILE_INIT",
-                 str(args.init_file), "./simulation_logs/sim_out.log {}".format(i)])
+                 str(args.init_file), "./simulation_logs/sim_out{}.log".format(i), "{}".format(i)])
             sleep(0.1)
             stats = parse_sim_stats()
             swarm_achieved[i] = int(stats[0])
@@ -189,10 +190,10 @@ def main():
         #vismap = expand_heatmap(heatmap)
         ax = plt.subplot()
         # ax.set_facecolor("skyblue")
-        im = ax.imshow(heatmap, cmap='hot',
+        im = ax.imshow(heatmap, cmap='viridis_r',
                        interpolation='none', norm=colors.LogNorm())
         for x, y in death_points:
-            ax.scatter([x], [y], c='b', marker='x', s=10)
+            ax.scatter([x], [y], c='r', marker='x', s=10)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.1)
         plt.colorbar(im, cax=cax)
