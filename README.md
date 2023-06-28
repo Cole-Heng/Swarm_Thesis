@@ -157,3 +157,25 @@ python3 create_file_init.py <x_of_grid> <y_of_grid> <width_of_grid (pixels)> <he
 This will create a file named `generated_file_init.txt` which can be used for simulations.
 
 ---
+
+### Generate heatmaps from logged data
+
+If you already have data logged and stored from running simulations, you can
+generate heatmaps from the log files. All simulation statistics files must have
+the naming convention `sim_statistics<num>.log` where `<num>` is the simulation
+number starting from 0. All files must be stored in the directory
+`./TESTING/simulation_logs`. Run the following to generate a heatmap:
+
+```bash
+cd ../TESTING
+python3 generate_heatmap.py <num_simulations> <arena_type>
+```
+<br>
+
+Parameters
+- **num_simulations** - The number of simulations with log files to read and process.
+- **arena_type** - The type of arena simulated (used to display obstacles on the
+  heatmap). Options are `open`, `wall`, or `bowl`.
+
+---
+
